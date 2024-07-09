@@ -2,14 +2,39 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "db:generate": {
+      "cache": true
+    },
+    "db:build": {
+      "cache": true,
+      "dependsOn": ["^db:generate"]
+    },
+    "global:build": {
+      "cache": true,
+      "dependsOn": ["^db:build"]
     },
     "dev": {
+      "dependsOn": [
+        "^db:build",
+        "^global:build"
+      ],
       "cache": false,
       "persistent": true
     }

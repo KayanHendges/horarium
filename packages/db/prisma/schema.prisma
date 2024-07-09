@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  name  String
+  email String @unique
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  credential UserCredential?
+  membership Membership?
+  accounts   Account[]
+
+  @@map("users")
+}
+
+model UserCredential {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId   String  @unique @map("user_id") @db.ObjectId
+  user     User    @relation(fields: [userId], references: [id])
+  password String?
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("user_credentials")
+}
+
+enum AccountProvider {
+  GOOGLE
+}
+
+model Account {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  provider          AccountProvider
+  providerAccountId String          @unique @map("provider_account_id")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id") @db.ObjectId
+
+  @@unique([provider, userId])
+  @@map("accounts")
+}
+
+model Workspace {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  name String
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  membership Membership?
+  role       Role[]
+
+  @@map("workspaces")
+}
+
+model Membership {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId      String    @unique @map("user_id") @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  workspaceId String    @unique @map("workspace_id") @db.ObjectId
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  role        Role      @default(member)
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("membership")
+}
+
+enum Role {
+  owner
+  admin
+  member
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "db:build": "tsc",
+    "db:generate": "pnpm env:load prisma generate",
+    "db:push": "pnpm env:load prisma db push",
+    "db:migrate-dev": "pnpm env:load prima migrate dev",
+    "db:migrate-deploy": "pnpm env:load prima migrate deploy",
+    "env:load": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.15.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/prettier": "workspace:*",
+    "@repo/tsconfig": "workspace:*"
+  },
+  "prettier": "@repo/prettier",
+  "eslintConfig": {
+    "extends": [
+      "@repo/eslint-config/library"
+    ]
+  }
+}
