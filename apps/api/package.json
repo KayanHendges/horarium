@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "dev": "pnpm env:load nest start",
+    "dev": "pnpm env:load nest start --watch --preserveWatchOutput",
     "env:load": "dotenv -e ../../.env --",
     "start": "nest start",
     "start:dev": "nest start --watch",

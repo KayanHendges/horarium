@@ -1,3 +1,4 @@
+import { User } from '@repo/db'
 import z from 'zod'
 
 export const passwordDTO = z.string().min(8).max(64)
@@ -15,8 +16,10 @@ export const registerUserDTO = z.object({
   password: passwordDTO,
 })
 
-export type RegisterUserDTO = z.infer<typeof registerUserDTO>
-
-export interface ILoginResponse {
+export interface LoginUserResponse {
   accessToken: string
 }
+
+export type RegisterUserDTO = z.infer<typeof registerUserDTO>
+
+export interface RegisterUserResponse extends User {}

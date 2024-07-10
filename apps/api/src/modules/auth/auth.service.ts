@@ -1,66 +1,79 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IUserRepository } from '@/repositories/user/user.repository.interface';
-import { IUserCredentialRepository } from '@/repositories/userCredential/user.credential.repository.interface';
 import * as bcrypt from 'bcrypt';
-import { ILoginResponse, LoginUserDTO, RegisterUserDTO } from '@repo/global';
+import {
+  LoginUserResponse,
+  LoginUserDTO,
+  RegisterUserDTO,
+  RegisterUserResponse,
+} from '@repo/global';
 import { User } from '@repo/db';
 import { JwtPayload } from '@/guards/auth/types';
+import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userRepository: IUserRepository,
-    private readonly userCredentialRepository: IUserCredentialRepository,
+    private readonly prismaProvider: PrismaProvider,
   ) {}
 
-  async register(user: RegisterUserDTO): Promise<User> {
+  async register(user: RegisterUserDTO): Promise<RegisterUserResponse> {
     const { password, ...payload } = user;
-    const passwordHash = this.generatePasswordHash(password);
+    const passwordHash = bcrypt.hashSync(password, 8);
 
-    const createdUser = await this.userRepository.create(payload);
-
-    try {
-      await this.userCredentialRepository.create({
-        userId: createdUser.id,
-        password: passwordHash,
-      });
-
-      return createdUser;
-    } catch (error) {
-      await this.userRepository.delete({ id: createdUser.id });
-
-      throw error;
-    }
-  }
-
-  async login({ email, password }: LoginUserDTO): Promise<ILoginResponse> {
-    const userFound = await this.userRepository.find({ email });
-
-    const [credentialFound] = await this.userCredentialRepository.list({
-      where: { userId: userFound.id },
-      pageSize: 1,
+    const userWithSameEmail = await this.prismaProvider.user.findFirst({
+      where: {
+        email: user.email,
+      },
     });
 
-    if (!credentialFound || !credentialFound.password)
-      throw new UnauthorizedException();
+    if (userWithSameEmail)
+      throw new BadRequestException(
+        `User with email "${userWithSameEmail}" already exists.`,
+      );
+
+    const createdUser = await this.prismaProvider.user.create({
+      data: {
+        ...payload,
+        accounts: { create: { provider: 'PASSWORD', passwordHash } },
+      },
+    });
+
+    return createdUser;
+  }
+
+  async login({ email, password }: LoginUserDTO): Promise<LoginUserResponse> {
+    const userFound = await this.prismaProvider.user.findFirst({
+      where: { email },
+    });
+
+    if (!userFound) throw new UnauthorizedException('Invalid credentials.');
+
+    const accountFound = await this.prismaProvider.account.findFirst({
+      where: { userId: userFound.id, provider: 'PASSWORD' },
+    });
+
+    if (!accountFound || !accountFound.passwordHash)
+      throw new UnauthorizedException(
+        'User does not have a password, use social login.',
+      );
 
     const passwordMatch = bcrypt.compareSync(
       password,
-      credentialFound.password,
+      accountFound.passwordHash,
     );
 
-    if (!passwordMatch) throw new UnauthorizedException();
+    if (!passwordMatch) throw new UnauthorizedException('Invalid credentials.');
 
     return this.generateToken(userFound);
   }
 
-  private generatePasswordHash(password: string): string {
-    return bcrypt.hashSync(password, 8);
-  }
-
-  private async generateToken({ id }: User): Promise<ILoginResponse> {
+  private async generateToken({ id }: User): Promise<LoginUserResponse> {
     const payload: JwtPayload = {
       id,
     };

@@ -54,7 +54,8 @@ export class GlobalErrorHandler implements ExceptionFilter {
       return {
         statusCode: exception.getStatus(),
         errorMessage,
-        details: details != errorMessage ? details : undefined,
+        details:
+          (details != errorMessage ? details : undefined) || exception.cause,
       };
     }
 

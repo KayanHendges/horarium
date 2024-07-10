@@ -5,6 +5,7 @@
   "author": "Kayan Hendges",
   "license": "MIT",
   "scripts": {
+    "dev": "tsc --watch",
     "global:build": "tsc"
   },
   "main": "./dist/index.js",
