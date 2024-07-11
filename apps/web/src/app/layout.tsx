@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "next-themes";
 import Header from "./header";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Header />
             {children}
           </main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

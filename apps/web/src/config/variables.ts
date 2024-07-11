@@ -1,3 +1,3 @@
-export const config = {
-  accessToken: "auth.token",
+export const variables = {
+  accessTokenVar: "auth.token",
 };

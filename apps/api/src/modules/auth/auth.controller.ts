@@ -14,14 +14,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Post('sign-up')
+  @Post('register')
   @UsePipes(new ZodValidationPipe(registerUserDTO))
   register(@Body() body: RegisterUserDTO) {
     return this.authService.register(body);
   }
 
   @Public()
-  @Post('sign-in')
+  @Post('login')
   @UsePipes(new ZodValidationPipe(loginUserDTO))
   async login(@Body() body: LoginUserDTO) {
     return await this.authService.login(body);

@@ -5,17 +5,19 @@ import { Label } from "./label";
 
 export interface TextInputRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  validation?: string | "error";
+  validation?: "error";
 }
 
-const InputRoot = ({ className, children }: TextInputRootProps) => {
+const InputRoot = ({ className, children, validation, ...props }: TextInputRootProps) => {
   return (
     <div
       className={cn(
         "group h-9 w-full flex items-center overflow-hidden",
         "rounded-md border border-input bg-transparent transition-all ring-black dark:ring-white focus-within:ring-1",
+        validation === "error" && "ring-1 ring-red-500 dark:ring-red-500",
         className
       )}
+      {...props}
     >
       {children}
     </div>

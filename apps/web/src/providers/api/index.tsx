@@ -1,4 +1,4 @@
-import { config } from "@/config/variables";
+import { variables } from "@/config/variables";
 import { getCookie } from "cookies-next";
 import { CookiesFn } from "cookies-next/lib/types";
 
@@ -29,6 +29,7 @@ class Api {
   private token?: string;
 
   constructor() {
+    console.log(process.env.NEXT_PUBLIC_API_BASE_URL)
     this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   }
 
@@ -80,7 +81,7 @@ class Api {
         cookieStore = serverCookies;
       }
 
-      const token = getCookie(config.accessToken, { cookies: cookieStore });
+      const token = getCookie(variables.accessTokenVar, { cookies: cookieStore });
 
       if (token) this.token = token;
     }
@@ -106,7 +107,7 @@ class Api {
     const { status } = response;
     const data = (await response.json().catch(() => {})) || {};
 
-    const apiResponse = { ...response, data };
+    const apiResponse = { ...response, status, data };
 
     if (status >= 400) throw new FetchApiException(apiResponse);
 
