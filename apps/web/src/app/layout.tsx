@@ -3,7 +3,6 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "next-themes";
-import Header from "./header";
 import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
@@ -34,10 +33,7 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          <main className="w-full min-h-screen flex flex-col p-4">
-            <Header />
-            {children}
-          </main>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

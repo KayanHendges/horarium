@@ -10,8 +10,8 @@ export default async function Header() {
   return (
     <div
       className={cn(
-        "w-full flex justify-between p-4 bg-background",
-        "border-b-[1px] border-black dark:border-white rounded-sm"
+        "w-full flex justify-between p-4 bg-card",
+        "border-b-[1px] border-ring rounded-sm"
       )}
     >
       <div className="flex gap-4 items-center">
