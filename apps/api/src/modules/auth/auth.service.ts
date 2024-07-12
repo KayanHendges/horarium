@@ -1,4 +1,5 @@
 import { JwtPayload } from '@/guards/auth/types';
+import { MailerProvider } from '@/providers/mailer/mailer.provider';
 import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 import {
   ConflictException,
@@ -12,6 +13,7 @@ import {
   LoginUserResponse,
   RegisterUserDTO,
   RegisterUserResponse,
+  RequestPasswordRecoveryDTO,
 } from '@repo/global';
 import * as bcrypt from 'bcrypt';
 
@@ -20,6 +22,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prismaProvider: PrismaProvider,
+    private readonly mailerProvider: MailerProvider,
   ) {}
 
   async register(user: RegisterUserDTO): Promise<RegisterUserResponse> {
@@ -71,6 +74,31 @@ export class AuthService {
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials.');
 
     return this.generateToken(userFound);
+  }
+
+  async requestPasswordRecovery({ email }: RequestPasswordRecoveryDTO) {
+    const user = await this.prismaProvider.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) return;
+
+    await this.prismaProvider.token.updateMany({
+      where: { userId: user.id },
+      data: { active: false },
+    });
+
+    const code = Math.random().toString().substring(2, 8);
+    const maxAge = 1000 * 60 * 10; // 10 minutes
+    const expiresAt = new Date(new Date().getTime() + maxAge);
+
+    await this.prismaProvider.token.create({
+      data: { code, expiresAt, type: 'PASSWORD_RECOVER', userId: user.id },
+    });
+
+    await this.mailerProvider.recoveryPasswordCode(code, email);
+
+    return;
   }
 
   private async generateToken({ id }: User): Promise<LoginUserResponse> {

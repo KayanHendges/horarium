@@ -24,6 +24,7 @@ model User {
 
   membership Membership?
   accounts   Account[]
+  tokens     Token[]
 
   @@map("users")
 }
@@ -45,7 +46,6 @@ model Account {
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([provider, userId])
   @@map("accounts")
 }
 
@@ -75,11 +75,30 @@ model Membership {
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("membership")
+  @@map("memberships")
 }
 
 enum Role {
   owner
   admin
   member
+}
+
+enum TokenType {
+  PASSWORD_RECOVER
+}
+
+model Token {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  code      String
+  type      TokenType
+  active    Boolean   @default(true)
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id") @db.ObjectId
+
+  @@map("tokens")
 }
