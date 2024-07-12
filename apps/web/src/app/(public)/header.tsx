@@ -1,5 +1,5 @@
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
-import { Heading } from "@/components/Typography/Heading";
+import { Heading } from "@/components/typography/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ export default async function Header() {
       <div className="flex gap-4 items-center">
         <ShoppingCart />
         <Separator orientation="vertical" />
-        <Heading>Product</Heading>
+        <Heading className="text-brand">Product</Heading>
       </div>
       <div className="flex gap-4 items-center">
         <ThemeSwitcher />

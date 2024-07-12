@@ -1,3 +1,5 @@
-export default function SignUp(){
-  return <div>SignUp</div>
+import { SignUpForm } from "./signUpForm";
+
+export default function SignUp() {
+  return <SignUpForm />;
 }

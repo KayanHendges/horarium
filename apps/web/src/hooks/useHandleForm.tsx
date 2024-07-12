@@ -62,6 +62,7 @@ export function useHandleForm<T extends z.ZodObject<any>>(
 
       if (data) await action(data);
     } catch (error) {
+      console.error(error);
       if (!(error instanceof FetchApiException)) {
         toast({
           title: "Houve uma falha",
@@ -69,35 +70,34 @@ export function useHandleForm<T extends z.ZodObject<any>>(
           duration: 2 * 1000,
           variant: "destructive",
         });
-        return;
+      } else {
+        const statusErrorOptions =
+          actionOptions?.onApiErrorStatus &&
+          actionOptions?.onApiErrorStatus[error.response.status];
+
+        const errorOptionFunction =
+          statusErrorOptions?.onError || actionOptions?.onApiError?.onError;
+
+        if (errorOptionFunction) errorOptionFunction(error);
+
+        const preventToast =
+          statusErrorOptions?.preventToast ||
+          actionOptions?.onApiError?.preventToast;
+
+        const toastOptions =
+          statusErrorOptions?.toast || actionOptions?.onApiError?.toast;
+
+        if (!preventToast)
+          toast({
+            title: "Houve uma falha",
+            description: toastOptions
+              ? toastOptions.description
+              : "Tente novamente em alguns minutos.",
+            duration: 2 * 1000,
+            variant: "destructive",
+            ...toastOptions,
+          });
       }
-
-      const statusErrorOptions =
-        actionOptions?.onApiErrorStatus &&
-        actionOptions?.onApiErrorStatus[error.response.status];
-
-      const errorOptionFunction =
-        statusErrorOptions?.onError || actionOptions?.onApiError?.onError;
-
-      if (errorOptionFunction) errorOptionFunction(error);
-
-      const preventToast =
-        statusErrorOptions?.preventToast ||
-        actionOptions?.onApiError?.preventToast;
-
-      const toastOptions =
-        statusErrorOptions?.toast || actionOptions?.onApiError?.toast;
-
-      if (!preventToast)
-        toast({
-          title: "Houve uma falha",
-          description: toastOptions
-            ? toastOptions.description
-            : "Tente novamente em alguns minutos.",
-          duration: 2 * 1000,
-          variant: "destructive",
-          ...toastOptions,
-        });
     }
 
     setIsSubmitting(false);

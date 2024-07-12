@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import React from "react";
-import { Text } from "../Typography/Text";
+import { Text } from "../typography/text";
 
 export interface FormInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {

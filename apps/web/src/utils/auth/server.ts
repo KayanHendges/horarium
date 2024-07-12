@@ -1,6 +1,6 @@
 import { variables } from "@/config/variables";
 import { cookies } from "next/headers";
 
-export function isAuthenticated() {
+export const isAuthenticated = () => {
   return !!cookies().get(variables.accessTokenVar)?.value;
-}
+};

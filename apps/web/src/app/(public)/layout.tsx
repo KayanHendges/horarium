@@ -1,4 +1,4 @@
-import { isAuthenticated } from "@/utils/auth";
+import { isAuthenticated } from "@/utils/auth/server";
 import { redirect } from "next/navigation";
 import Header from "./header";
 

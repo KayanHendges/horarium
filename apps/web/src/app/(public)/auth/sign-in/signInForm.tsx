@@ -2,19 +2,16 @@
 
 import { FormInput } from "@/components/inputs/formInput";
 import { PasswordInput } from "@/components/inputs/passwordInput";
-import { Heading } from "@/components/Typography/Heading";
-import { Text } from "@/components/Typography/Text";
+import { Heading } from "@/components/typography/heading";
+import { Text } from "@/components/typography/text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { authProvider } from "@/providers/api/auth";
+import { useHandleForm } from "@/hooks/useHandleForm";
+import { signIn } from "@/utils/auth/client";
 import { loginUserDTO } from "@repo/global";
 import Link from "next/link";
-import { jwtDecode } from "jwt-decode";
-import { setCookie } from "cookies-next";
-import { variables } from "@/config/variables";
-import { useHandleForm } from "@/hooks/useHandleForm";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export function SignInForm() {
   const {
@@ -24,33 +21,17 @@ export function SignInForm() {
     formState: { errors },
   } = useHandleForm(loginUserDTO);
 
+  const router = useRouter();
+
   const handleSignIn = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    handleForm(
-      async (data) => {
-        const { accessToken } = await authProvider.signIn(data);
-
-        const { exp } = jwtDecode(accessToken);
-
-        const maxAgeFallback = 60 * 60 * 24; // 1 day
-        const now = new Date().getTime() / 1000;
-        const maxAge = typeof exp === "number" ? exp - now : maxAgeFallback;
-
-        setCookie(variables.accessTokenVar, accessToken, {
-          path: "/",
-          maxAge,
-        });
-
-        redirect("/")
+    handleForm(async (data) => signIn(data, router.push), {
+      onApiErrorStatus: {
+        401: { toast: { title: "Combinação inválida" } },
       },
-      {
-        onApiErrorStatus: {
-          401: { toast: { title: "Combinação inválida" } },
-        },
-      }
-    );
+    });
   };
 
   return (
@@ -62,11 +43,11 @@ export function SignInForm() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <FormInput
-              label="email"
+              label="Email"
               {...register("email")}
               errorMessage={errors.email?.message}
             />
-            <FormInput label="senha" errorMessage={errors.password?.message}>
+            <FormInput label="Senha" errorMessage={errors.password?.message}>
               <PasswordInput {...register("password")} />
               <Link href={"/auth/forgot-password"}>
                 <Text className="hover:underline" size="md">
@@ -85,8 +66,10 @@ export function SignInForm() {
             <Separator />
             <Text>
               Ainda não possui conta?{" "}
-              <Link href={"/auth/forgot-password"}>
-                <strong className="underline">Crie sua conta.</strong>
+              <Link href={"/auth/sign-up"}>
+                <strong className="text-brand underline">
+                  Crie sua conta.
+                </strong>
               </Link>
             </Text>
           </CardContent>

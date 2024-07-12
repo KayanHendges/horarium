@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { isAuthenticated } from "@/utils/auth";
-import { Header } from "@/components/Header";
+import { isAuthenticated } from "@/utils/auth/server";
+import { Header } from "@/components/header";
 
 export default function AppLayout({
   children,

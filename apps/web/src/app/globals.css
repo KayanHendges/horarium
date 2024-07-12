@@ -4,6 +4,7 @@
 
   @layer base {
     :root {
+      --brand: hsl(243, 75%, 59%);
       --background: hsl(0, 0%, 98%);
       --foreground: hsl(240, 10%, 7%);
       --card: hsl(0, 0%, 100%);
@@ -23,7 +24,7 @@
       --border: hsl(240, 6%, 90%);
       --input: hsl(240, 6%, 90%);
       --ring: hsl(240, 10%, 4%);
-      --radius: hsl(0,.5rem);
+      --radius: .5rem;
       --chart-1: hsl(12, 76%, 61%);
       --chart-2: hsl(173, 58%, 39%);
       --chart-3: hsl(197, 37%, 24%);
@@ -32,8 +33,8 @@
     }
 
     .dark {
-      --background: hsl(240, 10%, 7%);
-      --foreground: hsl(0, 0%, 98%);
+      --background: var(--foreground);
+      --foreground: var(--background);
       --card: hsl(240, 10%, 4%);
       --card-foreground: hsl(0, 0%, 98%);
       --popover: hsl(240, 10%, 4%);

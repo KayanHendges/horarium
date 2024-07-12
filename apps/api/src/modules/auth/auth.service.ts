@@ -1,19 +1,19 @@
+import { JwtPayload } from '@/guards/auth/types';
+import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 import {
-  BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import { User } from '@repo/db';
 import {
-  LoginUserResponse,
   LoginUserDTO,
+  LoginUserResponse,
   RegisterUserDTO,
   RegisterUserResponse,
 } from '@repo/global';
-import { User } from '@repo/db';
-import { JwtPayload } from '@/guards/auth/types';
-import { PrismaProvider } from '@/providers/prisma/prisma.provider';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -33,8 +33,8 @@ export class AuthService {
     });
 
     if (userWithSameEmail)
-      throw new BadRequestException(
-        `User with email "${userWithSameEmail}" already exists.`,
+      throw new ConflictException(
+        `User with email "${userWithSameEmail.email}" already exists.`,
       );
 
     const createdUser = await this.prismaProvider.user.create({

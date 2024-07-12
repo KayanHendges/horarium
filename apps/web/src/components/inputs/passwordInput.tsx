@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export interface PasswordInputProps
   extends Omit<React.HTMLAttributes<HTMLInputElement>, "type"> {}
@@ -20,6 +20,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           {...props}
         />
         <Button
+          tabIndex={-1}
           variant={"ghost"}
           type="button"
           className="h-full px-2 rounded-none"
