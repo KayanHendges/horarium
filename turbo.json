@@ -3,7 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "^global:build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -23,12 +24,13 @@
       "cache": true
     },
     "db:build": {
-      "cache": true,
-      "dependsOn": ["^db:generate"]
+      "cache": true
     },
     "global:build": {
       "cache": true,
-      "dependsOn": ["^db:build"]
+      "dependsOn": [
+        "^db:build"
+      ]
     },
     "dev": {
       "dependsOn": [

@@ -4,8 +4,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "db:build": "tsc",
-    "db:generate": "pnpm env:load prisma generate",
+    "db:build": "tsc && pnpm prisma generate",
+    "db:generate": "pnpm prisma generate",
     "db:push": "pnpm env:load prisma db push",
     "db:migrate-dev": "pnpm env:load prima migrate dev",
     "db:migrate-deploy": "pnpm env:load prima migrate deploy",
