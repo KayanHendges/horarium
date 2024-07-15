@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "infra/nginx/**"
-      - ".github/workflows/ngix-cd.yaml"
+      - ".github/workflows/nginx-cd.yaml"
 
   workflow_dispatch: {}
 
