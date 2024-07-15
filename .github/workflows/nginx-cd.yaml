@@ -38,7 +38,7 @@ jobs:
       - name: Deploy
         env:
           SSH_PORT: 22
-          SSH_IP_ADDRESS: ${{ secrets.SERVER_ADDRESS  }}
+          SSH_IP_ADDRESS: ${{ secrets.DOMAIN  }}
           SSH_USER: ${{ secrets.SSH_USER  }}
         run: |
           rsync -av -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i api.pem -p $SSH_PORT" ./infra/nginx $SSH_USER@$SSH_IP_ADDRESS:${{ env.NGINX_PATH }}
@@ -47,7 +47,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           debug: true
-          host: ${{ secrets.SERVER_ADDRESS }}
+          host: ${{ secrets.DOMAIN }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
