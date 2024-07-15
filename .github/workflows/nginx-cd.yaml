@@ -41,7 +41,7 @@ jobs:
           SSH_IP_ADDRESS: ${{ secrets.DOMAIN  }}
           SSH_USER: ${{ secrets.SSH_USER  }}
         run: |
-          rsync -av -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i api.pem -p $SSH_PORT" ./infra/nginx $SSH_USER@$SSH_IP_ADDRESS:${{ env.NGINX_PATH }}
+          rsync -av -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i api.pem -p $SSH_PORT" ./infra/nginx/ $SSH_USER@$SSH_IP_ADDRESS:${{ env.NGINX_PATH }}
 
       - name: Building container on server
         uses: appleboy/ssh-action@master
