@@ -1,0 +1,59 @@
+name: Nginx CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infra/nginx/**"
+      - ".github/workflows/ngix-cd.yaml"
+
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      NGINX_PATH: /apps/product/nginx
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Generate Nginx config file
+        working-directory: infra/nginx
+        env:
+          DOMAIN: ${{ secrets.DOMAIN }}
+        run: sed -i "s/{{domain}}/$DOMAIN/g" api.conf
+
+      - name: Creating api.pem
+        run: echo "${{ secrets.SSH_KEY }}" >> api.pem
+
+      - run: chmod 400 api.pem
+
+      - name: Deploy
+        env:
+          SSH_PORT: 22
+          SSH_IP_ADDRESS: ${{ secrets.SERVER_ADDRESS  }}
+          SSH_USER: ${{ secrets.SSH_USER  }}
+        run: |
+          rsync -av -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i api.pem -p $SSH_PORT" ./infra/nginx $SSH_USER@$SSH_IP_ADDRESS:${{ env.NGINX_PATH }}
+
+      - name: Building container on server
+        uses: appleboy/ssh-action@master
+        with:
+          debug: true
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd ${{ env.NGINX_PATH }}
+            docker compose down
+            docker compose up -d
+            docker system prune -f

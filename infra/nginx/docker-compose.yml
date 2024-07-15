@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:1.23.1-alpine
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./sites-enabled/:/etc/nginx/conf.d
+      - /etc/letsencrypt/:/etc/letsencrypt/:ro

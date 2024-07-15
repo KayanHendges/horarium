@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const schema = z.object({
+  environment: z.enum(['development', 'production']).default('development'),
   SERVER_PORT: z.coerce.number().positive(),
   JWT_SECRET: z.string(),
   JWT_EXPIRES_IN: z.string(),

@@ -4,6 +4,7 @@ import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 import {
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -96,7 +97,11 @@ export class AuthService {
       data: { code, expiresAt, type: 'PASSWORD_RECOVER', userId: user.id },
     });
 
-    await this.mailerProvider.recoveryPasswordCode(code, email);
+    this.mailerProvider
+      .recoveryPasswordCode(code, email)
+      .catch(() =>
+        Logger.error(`Failed to send password recovery code to email ${email}`),
+      );
 
     return;
   }

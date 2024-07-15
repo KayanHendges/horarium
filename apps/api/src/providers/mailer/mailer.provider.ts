@@ -37,9 +37,15 @@ export class MailerProvider {
     return this.transport.sendMail({
       ...this.defaultMailOptions,
       to: email,
+      subject: 'Your recovery password code',
       html,
     });
   }
 
-  private defaultMailOptions: Mail.Options = {};
+  private defaultMailOptions: Mail.Options = {
+    from: {
+      address: 'mailtrap@demomailtrap.com',
+      name: 'Product',
+    },
+  };
 }
