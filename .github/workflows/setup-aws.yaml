@@ -26,7 +26,7 @@ jobs:
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/meu-devocionario-ci-cd
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/product-ci-cd
           aws-region: ${{ secrets.AWS_ECR_REGION }}
 
       - name: Setup Login to Amazon ECR
@@ -53,5 +53,3 @@ jobs:
       registry_encrypted: ${{ steps.login-secrets.outputs.registry_encrypted }}
       ecr_username: ${{ steps.login-ecr.outputs[format('docker_username_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, env.AWS_ECR_REGION)] }}
       ecr_password: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, env.AWS_ECR_REGION)] }}
-
- 
