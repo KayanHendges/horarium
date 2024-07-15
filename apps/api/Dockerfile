@@ -1,53 +1,59 @@
-FROM node:18-alpine AS base
-ARG PNPM_VERSION=8.6.2
-ENV PNPM_HOME=/usr/local/bin
+ARG NODE_VERSION=18.18.0
 
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
-
-FROM base AS builder
-RUN apk add --no-cache libc6-compat
+# Alpine image
+FROM node:${NODE_VERSION}-alpine AS alpine
 RUN apk update
-# Set working directory
+RUN apk add --no-cache libc6-compat
+
+# Setup pnpm and turbo on the alpine base
+FROM alpine AS base
+RUN npm install pnpm turbo --global
+RUN pnpm config set store-dir ~/.pnpm-store
+
+# Prune projects
+FROM base AS pruner
+ARG PROJECT=api
+
 WORKDIR /app
-RUN pnpm add -g turbo
 COPY . .
-RUN turbo prune --scope=@repo/api --docker
-
-# Add lockfile and package.json's of isolated subworkspace
-FROM base AS installer
-RUN apk add --no-cache libc6-compat
-RUN apk update
-WORKDIR /app
-
-# First install the dependencies (as they change less often)
-COPY .gitignore .gitignore
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN pnpm install
+RUN turbo prune --scope=${PROJECT} --docker
 
 # Build the project
-COPY --from=builder /app/out/full/ .
-RUN pnpm turbo run build --filter=@repo/api
+FROM base AS builder
+ARG PROJECT=api
 
-# # Build global
-# WORKDIR /app/build/packages/global
-
-# RUN pnpm build
-
-FROM base AS runner
 WORKDIR /app
 
-# Don't run production as root
+# Copy lockfile and package.json's of isolated subworkspace
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=pruner /app/out/json/ .
+
+# First install the dependencies (as they change less often)
+RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm install --frozen-lockfile
+
+# Copy source code of isolated subworkspace
+COPY --from=pruner /app/out/full/ .
+
+RUN turbo build --filter=${PROJECT}
+RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm prune --prod --no-optional
+RUN rm -rf ./**/*/src
+
+# Final image
+FROM alpine AS runner
+ARG PROJECT=api
+
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
-USER nestjs
+RUN adduser --system --uid 1001 nodejs
+USER nodejs
 
-COPY --from=installer /app/apps/api/package.json .
+WORKDIR /app
+COPY --from=builder --chown=nodejs:nodejs /app .
+WORKDIR /app/apps/${PROJECT}
 
-# Automatically leverage output traces to reduce image size
-COPY --from=installer --chown=nestjs:nodejs /app/apps/api/dist dist/
-COPY --from=installer --chown=nestjs:nodejs /app/node_modules node_modules/
-COPY --from=installer --chown=nestjs:nodejs /app/packages packages/
+ARG PORT=3333
+ENV PORT=${PORT}
+ENV NODE_ENV=production
+EXPOSE ${PORT}
 
-
-CMD ["/bin/sh", "-c", "node dist/main.js"]
+CMD node dist/main
