@@ -27,6 +27,11 @@ jobs:
       - name: install pnpm
         run: npm install -g pnpm
 
+      - name: Config git
+        run: |
+          git config --global user.email "${{ github.event.head_commit.committer.email }}"
+          git config --global user.name "${{ github.event.head_commit.committer.name }}"
+
       - name: debug commit message
         run: echo "${{ github.event.head_commit.message }}"
 
