@@ -10,3 +10,7 @@ services:
     volumes:
       - ./sites-enabled/:/etc/nginx/conf.d
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
+networks:
+  default:
+    name: nginx
+    external: true
