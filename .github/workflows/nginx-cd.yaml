@@ -27,8 +27,8 @@ jobs:
           DOMAIN: ${{ secrets.DOMAIN }}
           SERVER_PORT: ${{ vars.SERVER_PORT }}
         run: |
-          sed -i "s/{{domain}}/$DOMAIN/g" api.conf
-          sed -i "s/{{server_port}}/$SERVER_PORT/g" api.conf
+          sed -i "s/{{domain}}/$DOMAIN/g" default.conf
+          sed -i "s/{{server_port}}/$SERVER_PORT/g" default.conf
 
       - name: Create .env file
         working-directory: ${{ env.WORKING_DIR }}
