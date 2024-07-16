@@ -15,11 +15,17 @@ jobs:
     if: ${{ needs.changed-contexts.outputs.api }}
     uses: ./.github/workflows/api-ci.yaml
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
 
   api-cd:
     needs: [changed-contexts, api-ci]
     if: ${{ needs.changed-contexts.outputs.api }}
     uses: ./.github/workflows/api-cd.yaml
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
     with:
       image_tag: ${{ needs.api-ci.outputs.tag }}
