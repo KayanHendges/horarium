@@ -61,7 +61,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: push commits
-        run: push
+        run: git push
 
   nginx:
     needs: [changed-contexts]
