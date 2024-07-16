@@ -4,6 +4,9 @@ on:
   workflow_dispatch: {}
   workflow_call:
     outputs:
+      tag:
+        description: image tag
+        value: ${{ jobs.deploy.outputs.tag }}
       image:
         description: Generated image on ECR
         value: ${{ jobs.deploy.outputs.image }}
@@ -53,4 +56,5 @@ jobs:
           docker push $IMAGE_URI:latest
           echo "image=$IMAGE_URI:$IMAGE_TAG" >> $GITHUB_OUTPUT
     outputs:
+      tag: ${{ steps.get-image-tag.outputs.tag }}
       image: ${{ steps.build-image.outputs.image }}

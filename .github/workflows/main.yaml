@@ -13,5 +13,13 @@ jobs:
   api-ci:
     needs: [changed-contexts]
     if: ${{ needs.changed-contexts.outputs.api }}
-    uses: ./.gihub/workflows/api-ci.yaml
+    uses: ./.github/workflows/api-ci.yaml
     secrets: inherit
+
+  api-cd:
+    needs: [changed-contexts, api-ci]
+    if: ${{ needs.changed-contexts.outputs.api }}
+    uses: ./.github/workflows/api-cd.yaml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.api-ci.outputs.tag }}
