@@ -7,3 +7,8 @@ services:
     restart: on-failure
     expose:
       - ${SERVER_PORT}
+
+networks:
+  default:
+    name: nginx
+    external: true
