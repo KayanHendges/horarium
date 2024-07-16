@@ -29,7 +29,6 @@ class Api {
   private token?: string;
 
   constructor() {
-    console.log(process.env.NEXT_PUBLIC_API_BASE_URL)
     this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   }
 
@@ -81,7 +80,9 @@ class Api {
         cookieStore = serverCookies;
       }
 
-      const token = getCookie(variables.accessTokenVar, { cookies: cookieStore });
+      const token = getCookie(variables.accessTokenVar, {
+        cookies: cookieStore,
+      });
 
       if (token) this.token = token;
     }
