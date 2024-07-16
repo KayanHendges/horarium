@@ -3,7 +3,7 @@ version: '3'
 services:
   api:
     env_file: .env
-    image: ${IMAGE}
+    image: ${DOCKER_IMAGE}
     restart: on-failure
     expose:
       - ${SERVER_PORT}
