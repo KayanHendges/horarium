@@ -10,6 +10,15 @@ jobs:
     uses: ./.github/workflows/changed-contexts.yaml
     secrets: inherit
 
+  nginx:
+    needs: [changed-contexts]
+    if: needs.changed-contexts.outputs.nginx == 'true'
+    uses: ./.github/workflows/nginx-cd.yaml
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+
   api-ci:
     needs: [changed-contexts]
     if: needs.changed-contexts.outputs.api == 'true'

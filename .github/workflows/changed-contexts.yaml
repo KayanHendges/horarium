@@ -15,6 +15,9 @@ on:
       api:
         description: Api app
         value: ${{ jobs.changed-contexts.outputs.api }}
+      nginx:
+        description: Api app
+        value: ${{ jobs.changed-contexts.outputs.api }}
 
 jobs:
   changed-contexts:
@@ -33,8 +36,9 @@ jobs:
         env:
           GLOBAL_DIR: packages/global/**
           DB_DIR: packages/db/**
-          WEB_DIR: apps/web
-          API_DIR: apps/api
+          WEB_DIR: apps/web/**
+          API_DIR: apps/api/**
+          NGINX_DIR: infra/nginx/**
         with:
           base: ${{ github.event.before }}
           ref: ${{ github.event.after }}
@@ -50,8 +54,11 @@ jobs:
               - *global
               - *db
               - '${{ env.API_DIR }}/**'
+            nginx:
+              - '${{ env.NGINX_DIR }}/**'
     outputs:
       global: ${{ steps.filter.outputs.global }}
       db: ${{ steps.filter.outputs.db }}
       web: ${{ steps.filter.outputs.web }}
       api: ${{ steps.filter.outputs.api }}
+      nginx: ${{ steps.filter.outputs.nginx }}
