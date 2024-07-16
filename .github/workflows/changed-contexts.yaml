@@ -1,0 +1,57 @@
+name: Changed Contexts
+
+on:
+  workflow_call:
+    outputs:
+      global:
+        description: Global package
+        value: ${{ jobs.changed-contexts.outputs.global }}
+      db:
+        description: Database package
+        value: ${{ jobs.changed-contexts.outputs.db }}
+      web:
+        description: Frontend app
+        value: ${{ jobs.changed-contexts.outputs.web }}
+      api:
+        description: Api app
+        value: ${{ jobs.changed-contexts.outputs.api }}
+
+jobs:
+  changed-contexts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Update repository
+        run: git pull
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        env:
+          GLOBAL_DIR: packages/global/**
+          DB_DIR: packages/db/**
+          WEB_DIR: apps/sidebar
+          API_DIR: apps/backend
+        with:
+          base: ${{ github.event.before }}
+          ref: ${{ github.event.after }}
+          filters: |
+            global: &global
+              - '${{ env.GLOBAL_DIR }}/**'
+            db: &db
+              - '${{ env.DB_DIR }}/**'
+            web:
+              - *global
+              - '${{ env.WEB_DIR }}/**'
+            api: 
+              - *global
+              - *db
+              - '${{ env.API_DIR }}/**'
+    outputs:
+      global: ${{ steps.filter.outputs.global }}
+      db: ${{ steps.filter.outputs.db }}
+      web: ${{ steps.filter.outputs.web }}
+      api: ${{ steps.filter.outputs.api }}

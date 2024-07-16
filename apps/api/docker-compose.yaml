@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  api:
+    env_file: .env
+    image: ${IMAGE}
+    restart: on-failure
+    expose:
+      - ${SERVER_PORT}

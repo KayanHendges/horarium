@@ -1,0 +1,56 @@
+name: API CI
+
+on:
+  workflow_dispatch: {}
+  workflow_call:
+    outputs:
+      image:
+        description: Generated image on ECR
+        value: ${{ jobs.deploy.outputs.image }}
+
+env:
+  API_DIR: apps/api
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/product-ci-cd
+          aws-region: ${{ secrets.AWS_ECR_REGION }}
+
+      - name: Setup Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Get image tag
+        id: get-image-tag
+        working-directory: ${{ env.API_DIR }}
+        run: |
+          tag=$(cat package.json | jq -r .version)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.get-image-tag.outputs.tag }}
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $IMAGE_URI:$IMAGE_TAG -t $IMAGE_URI:latest -f ${{env.API_DIR}}/Dockerfile .
+          docker push $IMAGE_URI:$IMAGE_TAG
+          docker push $IMAGE_URI:latest
+          echo "image=$IMAGE_URI:$IMAGE_TAG" >> $GITHUB_OUTPUT
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}

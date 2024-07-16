@@ -1,0 +1,17 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changed-contexts:
+    uses: ./.github/workflows/changed-contexts.yaml
+    secrets: inherit
+
+  api-ci:
+    needs: [changed-contexts]
+    if: ${{ needs.changed-contexts.outputs.api }}
+    uses: ./.gihub/workflows/api-ci.yaml
+    secrets: inherit
