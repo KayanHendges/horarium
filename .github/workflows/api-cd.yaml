@@ -92,7 +92,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          envs: ECR_USERNAME,ECR_PASSWORD
+          envs: ECR_USERNAME,ECR_PASSWORD,ECR_REGISTRY
           script: |
             echo $ECR_PASSWORD | docker login -u $ECR_USERNAME --password-stdin $ECR_REGISTRY
             cd ~/.deploy/${{ github.event.repository.name }}/${{ env.WORKING_DIR }}
