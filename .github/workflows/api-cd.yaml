@@ -19,6 +19,9 @@ jobs:
   deploy_via_ssh:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
     env:
       WORKING_DIR: apps/api
 

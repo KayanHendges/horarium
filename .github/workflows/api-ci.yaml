@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: prod
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout
