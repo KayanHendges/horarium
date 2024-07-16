@@ -24,6 +24,9 @@ jobs:
       - name: Update repository
         run: git pull
 
+      - name: install pnpm
+        run: npm install -g pnpm
+
       - name: debug commit message
         run: echo "${{ github.event.head_commit.message }}"
 
