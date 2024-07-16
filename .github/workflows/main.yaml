@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        required: true
 
 jobs:
   changed-contexts:
@@ -71,6 +76,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
+  db:
+    needs: [changed-contexts]
+    if: needs.changed-contexts.outputs.db == 'true'
+    uses: ./.github/workflows/db-cd.yaml
+    secrets: inherit
 
   api-ci:
     needs: [changed-contexts, bump]

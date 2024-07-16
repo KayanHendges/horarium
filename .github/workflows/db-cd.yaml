@@ -1,0 +1,37 @@
+name: Database CD
+
+on:
+  workflow_dispatch: {}
+  workflow_call:
+
+env:
+  DB_DIR: packages/db
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update repository
+        run: git pull
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Push schema
+        working-directory: ${{ env.DB_DIR }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm prisma db push

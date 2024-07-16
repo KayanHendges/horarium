@@ -28,6 +28,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Update repository
+        run: git pull
+
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
