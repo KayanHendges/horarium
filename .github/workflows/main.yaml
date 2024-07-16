@@ -33,7 +33,7 @@ jobs:
       - name: bump repo
         id: bump-repo
         run: |
-          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          tag=$(pnpm version patch --no-commit-hooks --no-git-tag-version)
           git add . && git commit -m "bump repo: $tag [skip ci]"
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
@@ -42,7 +42,7 @@ jobs:
         working-directory: apps/web
         id: bump-web
         run: |
-          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          tag=$(pnpm version patch --no-commit-hooks --no-git-tag-version)
           git add . && git commit -m "bump web: $tag [skip ci]"
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
@@ -51,7 +51,7 @@ jobs:
         working-directory: apps/api
         id: bump-api
         run: |
-          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          tag=$(pnpm version patch --no-commit-hooks --no-git-tag-version)
           git add . && git commit -m "bump api: $tag [skip ci]"
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
