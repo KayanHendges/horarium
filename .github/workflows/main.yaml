@@ -10,6 +10,51 @@ jobs:
     uses: ./.github/workflows/changed-contexts.yaml
     secrets: inherit
 
+  bump:
+    needs: [changed-contexts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Update repository
+        run: git pull
+
+      - name: debug commit message
+        run: echo "${{ github.event.head_commit.message }}"
+
+      - name: bump repo
+        id: bump-repo
+        run: |
+          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          git add . && git commit -m "bump repo: $tag [skip ci]"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: bump web app
+        if: needs.changed-contexts.outputs.web == 'true'
+        working-directory: apps/web
+        id: bump-web
+        run: |
+          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          git add . && git commit -m "bump web: $tag [skip ci]"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: bump api app
+        if: needs.changed-contexts.outputs.api == 'true'
+        working-directory: apps/api
+        id: bump-api
+        run: |
+          tag=$(pnpm bump patch --no-commit-hooks --no-git-tag-version)
+          git add . && git commit -m "bump api: $tag [skip ci]"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: push commits
+        run: push
+
   nginx:
     needs: [changed-contexts]
     if: needs.changed-contexts.outputs.nginx == 'true'
@@ -20,7 +65,7 @@ jobs:
       contents: read
 
   api-ci:
-    needs: [changed-contexts]
+    needs: [changed-contexts, bump]
     if: needs.changed-contexts.outputs.api == 'true'
     uses: ./.github/workflows/api-ci.yaml
     secrets: inherit
@@ -29,8 +74,7 @@ jobs:
       contents: read
 
   api-cd:
-    needs: [changed-contexts, api-ci]
-    if: needs.changed-contexts.outputs.api == 'true'
+    needs: [api-ci]
     uses: ./.github/workflows/api-cd.yaml
     secrets: inherit
     permissions:
