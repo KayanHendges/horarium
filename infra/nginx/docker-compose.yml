@@ -10,7 +10,7 @@ services:
       - "443:443"
     volumes:
       - ./sites-enabled/:/etc/nginx/conf.d
-      - letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/:ro
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
 
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     command: sh -c "certbot certonly --standalone -d ${DOMAIN} --text --agree-tos --email ${TLS_EMAIL} --server https://acme-v02.api.letsencrypt.org/directory --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
     volumes:
-      - "letsencrypt:/etc/letsencrypt"
+      - /etc/letsencrypt/:/etc/letsencrypt/
     environment:
       - TERM=xterm
 
@@ -27,7 +27,3 @@ networks:
   default:
     name: nginx
     external: true
-
-volumes:
-  letsencrypt:
-    name: letsencrypt_keys
