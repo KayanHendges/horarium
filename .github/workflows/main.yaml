@@ -12,7 +12,7 @@ jobs:
 
   api-ci:
     needs: [changed-contexts]
-    if: ${{ needs.changed-contexts.outputs.api }}
+    if: needs.changed-contexts.outputs.api == 'true'
     uses: ./.github/workflows/api-ci.yaml
     secrets: inherit
     permissions:
@@ -21,7 +21,7 @@ jobs:
 
   api-cd:
     needs: [changed-contexts, api-ci]
-    if: ${{ needs.changed-contexts.outputs.api }}
+    if: needs.changed-contexts.outputs.api == 'true'
     uses: ./.github/workflows/api-cd.yaml
     secrets: inherit
     permissions:
