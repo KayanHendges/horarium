@@ -17,7 +17,7 @@ on:
         value: ${{ jobs.changed-contexts.outputs.api }}
       nginx:
         description: Api app
-        value: ${{ jobs.changed-contexts.outputs.api }}
+        value: ${{ jobs.changed-contexts.outputs.nginx }}
 
 jobs:
   changed-contexts:

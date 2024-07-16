@@ -12,7 +12,7 @@ jobs:
 
   nginx:
     needs: [changed-contexts]
-    if: needs.changed-contexts.outputs.nginx == true
+    if: needs.changed-contexts.outputs.nginx == 'true'
     uses: ./.github/workflows/nginx-cd.yaml
     secrets: inherit
     permissions:
