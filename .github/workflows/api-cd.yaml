@@ -74,7 +74,7 @@ jobs:
           port: 22
           key: ${{ secrets.SSH_KEY }}
           source: "./${{ env.WORKING_DIR }}/docker-compose.yaml,./${{ env.WORKING_DIR }}/.env"
-          target: "~/.deploy/${{ github.event.repository.name }}/api"
+          target: "~/.deploy/${{ github.event.repository.name }}"
 
       - name: Replace AWS Region hyphens
         run: |
@@ -84,7 +84,6 @@ jobs:
       - name: remote docker-compose up via ssh
         uses: appleboy/ssh-action@v0.1.5
         env:
-          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
           ECR_USERNAME: ${{ steps.login-ecr.outputs[format('docker_username_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, env.AWS_ECR_REGION)] }}
           ECR_PASSWORD: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, env.AWS_ECR_REGION)] }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -96,7 +95,7 @@ jobs:
           envs: ECR_USERNAME,ECR_PASSWORD
           script: |
             echo $ECR_PASSWORD | docker login -u $ECR_USERNAME --password-stdin $ECR_REGISTRY
-            cd ~/.deploy/${{ github.event.repository.name }}
+            cd ~/.deploy/${{ github.event.repository.name }}/${{ env.WORKING_DIR }}
             docker compose pull
             docker compose down
             docker compose up -d
