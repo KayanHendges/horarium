@@ -81,6 +81,9 @@ jobs:
     needs: [changed-contexts]
     if: needs.changed-contexts.outputs.db == 'true'
     uses: ./.github/workflows/db-cd.yaml
+    permissions:
+      id-token: write
+      contents: read
     secrets: inherit
 
   api-ci:
