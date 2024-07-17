@@ -127,7 +127,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       id-token: write
-      contents: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
