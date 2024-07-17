@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: entrypoint-workflow
+  cancel-in-progress: false
+
 env:
   WEB_DIR: apps/web
   API_DIR: apps/api

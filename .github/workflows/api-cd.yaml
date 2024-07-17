@@ -6,7 +6,7 @@ on:
       repo_tag:
         description: Repo tag to deploy
         type: string
-        default: main
+        default: ${{ github.ref_name }}
   workflow_dispatch:
     inputs:
       repo_tag:
@@ -32,6 +32,7 @@ jobs:
           ref: ${{ inputs.repo_tag }}
 
       - name: Update repository
+        if: inputs.repo_tag == github.ref_name
         run: git pull
 
       - name: Get image tag
