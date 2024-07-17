@@ -55,7 +55,7 @@ jobs:
 
       - name: Get image tag
         id: get-tags
-        uses: ./.github/actions/get-tag
+        uses: ./.github/actions/get-tags
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
