@@ -1,0 +1,46 @@
+name: Deploy Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release to deploy
+        type: string
+        required: true
+
+jobs:
+  db-cd:
+    uses: ./.github/workflows/db-cd.yaml
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+
+  api-cd:
+    needs: [db-cd]
+    uses: ./.github/workflows/api-cd.yaml
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      repo_tag: ${{ inputs.tag }}
+
+  nginx:
+    needs: [api-cd]
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/nginx-cd.yaml
+    with:
+      repo_tag: ${{ inputs.tag }}
+
+  web-cd:
+    uses: ./.github/workflows/web-cd.yaml
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      repo_tag: ${{ inputs.tag }}

@@ -1,7 +1,18 @@
 name: Nginx CD
 
 on:
+  workflow_dispatch:
+    inputs:
+      repo_tag:
+        description: Repo tag to deploy
+        type: string
+        default: main
   workflow_call:
+    inputs:
+      repo_tag:
+        description: Repo tag to deploy
+        type: string
+        default: main
 
 jobs:
   deploy:
@@ -17,6 +28,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.repo_tag }}
 
       - name: Update repository
         run: git pull

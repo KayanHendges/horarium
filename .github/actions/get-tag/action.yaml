@@ -1,0 +1,23 @@
+name: "Get Tag"
+description: "Get package tag from path"
+
+inputs:
+  path:
+    description: "Path to package folder"
+    default: ./
+    required: false
+outputs:
+  tag:
+    description: Package version
+    value: ${{ steps.get-tag.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get package.json tag
+      id: get-tag
+      working-directory: ${{ inputs.path }}
+      shell: bash
+      run: |
+        tag=`jq -r '.version' package.json`
+        echo "tag=$tag" >> $GITHUB_OUTPUT

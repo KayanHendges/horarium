@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      tag:
-        type: string
-        required: true
 
 jobs:
   changed-contexts:
@@ -68,16 +63,10 @@ jobs:
       - name: push commits
         run: git push
 
-  nginx:
-    needs: [changed-contexts]
-    if: needs.changed-contexts.outputs.nginx == 'true'
-    uses: ./.github/workflows/nginx-cd.yaml
-    secrets: inherit
-    permissions:
-      id-token: write
-      contents: read
+    outputs:
+      repo-tag: ${{ steps.bump-repo.outputs.tag }}
 
-  db:
+  db-cd:
     needs: [changed-contexts]
     if: needs.changed-contexts.outputs.db == 'true'
     uses: ./.github/workflows/db-cd.yaml
@@ -87,8 +76,12 @@ jobs:
     secrets: inherit
 
   api-ci:
-    needs: [changed-contexts, bump]
-    if: needs.changed-contexts.outputs.api == 'true'
+    needs: [changed-contexts, bump, db-cd]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changed-contexts.outputs.api == 'true'
     uses: ./.github/workflows/api-ci.yaml
     secrets: inherit
     permissions:
@@ -102,5 +95,45 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    with:
-      image_tag: ${{ needs.api-ci.outputs.tag }}
+
+  nginx:
+    needs: [changed-contexts, api-cd]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changed-contexts.outputs.nginx == 'true'
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/nginx-cd.yaml
+
+  web-cd:
+    needs: [changed-contexts, bump]
+    if: needs.changed-contexts.outputs.web == 'true'
+    uses: ./.github/workflows/web-cd.yaml
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+
+  release:
+    needs: [changed-contexts, bump]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update repository
+        run: git pull
+
+      - name: Create git tag
+        run: git tag ${{ needs.bump.outputs.repo-tag }}
+
+      - name: Push tag
+        run: git push origin ${{ needs.bump.outputs.repo-tag }}
