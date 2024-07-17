@@ -1,0 +1,39 @@
+name: "Get Tags"
+description: "Get tags"
+
+outputs:
+  repo:
+    description: Repo Package version
+    value: ${{ steps.get-repo-tag.outputs.tag }}
+  web:
+    description: Web app version
+    value: ${{ steps.get-web-tag.outputs.tag }}
+  api:
+    description: Web app version
+    value: ${{ steps.get-api-tag.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get repo package.json tag
+      id: get-repo-tag
+      shell: bash
+      run: |
+        tag=`jq -r '.version' package.json`
+        echo "tag=$tag" >> $GITHUB_OUTPUT
+
+    - name: Get web package.json tag
+      id: get-web-tag
+      working-directory: apps/web
+      shell: bash
+      run: |
+        tag=`jq -r '.version' package.json`
+        echo "tag=$tag" >> $GITHUB_OUTPUT
+
+    - name: Get api package.json tag
+      id: get-api-tag
+      working-directory: apps/web
+      shell: bash
+      run: |
+        tag=`jq -r '.version' package.json`
+        echo "tag=$tag" >> $GITHUB_OUTPUT

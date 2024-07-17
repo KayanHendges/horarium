@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  WEB_DIR: apps/web
+  API_DIR: apps/api
+
 jobs:
   changed-contexts:
     uses: ./.github/workflows/changed-contexts.yaml
@@ -44,7 +48,7 @@ jobs:
 
       - name: bump web app
         if: needs.changed-contexts.outputs.web == 'true'
-        working-directory: apps/web
+        working-directory: ${{ env.WEB_DIR }}
         id: bump-web
         run: |
           tag=$(pnpm version patch --no-commit-hooks --no-git-tag-version)
@@ -53,7 +57,7 @@ jobs:
 
       - name: bump api app
         if: needs.changed-contexts.outputs.api == 'true'
-        working-directory: apps/api
+        working-directory: ${{ env.API_DIR }}
         id: bump-api
         run: |
           tag=$(pnpm version patch --no-commit-hooks --no-git-tag-version)
@@ -65,6 +69,8 @@ jobs:
 
     outputs:
       repo-tag: ${{ steps.bump-repo.outputs.tag }}
+      web-tag: ${{ steps.bump-web.outputs.tag }}
+      api-tag: ${{ steps.bump-api.outputs.tag }}
 
   db-cd:
     needs: [changed-contexts]
@@ -128,6 +134,8 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    env:
+      TEMPLATE_DIR: templates/release.md
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -140,3 +148,26 @@ jobs:
 
       - name: Push tag
         run: git push origin ${{ needs.bump.outputs.repo-tag }}
+
+      - name: Get tags
+        id: get-tags
+        uses: ./.github/actions/get-tag
+
+      - name: Generate release body
+        env:
+          WEB_CONTENT: ${{ needs.bump.outputs.web-tag && format('updated to v{0}', needs.bump.outputs.web-tag) || format('v{0}', steps.get-tags.outputs.web) }}
+          API_CONTENT: ${{ needs.bump.outputs.api-tag && format('updated to v{0}', needs.bump.outputs.api-tag) || format('v{0}', steps.get-tags.outputs.api) }}
+        run: |
+          sed -i "s/{{web_content}}/$WEB_CONTENT/g" ${{ env.TEMPLATE_DIR }}
+          sed -i "s/{{api_content}}/$API_CONTENT/g" ${{ env.TEMPLATE_DIR }}
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.bump.outputs.repo-tag }}
+          release_name: ${{ needs.bump.outputs.repo-tag }}
+          body_path: ${{ env.TEMPLATE_DIR }}
+          draft: false
+          prerelease: false
