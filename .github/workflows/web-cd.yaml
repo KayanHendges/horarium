@@ -33,8 +33,11 @@ jobs:
       - name: Update repository
         run: git pull
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install -g vercel@latest
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}

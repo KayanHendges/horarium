@@ -155,8 +155,8 @@ jobs:
 
       - name: Generate release body
         env:
-          WEB_CONTENT: ${{ needs.bump.outputs.web-tag && format('updated to v{0}', needs.bump.outputs.web-tag) || format('v{0}', steps.get-tags.outputs.web) }}
-          API_CONTENT: ${{ needs.bump.outputs.api-tag && format('updated to v{0}', needs.bump.outputs.api-tag) || format('v{0}', steps.get-tags.outputs.api) }}
+          WEB_CONTENT: ${{ needs.bump.outputs.web-tag && format('updated to {0}', needs.bump.outputs.web-tag) || format('v{0}', steps.get-tags.outputs.web) }}
+          API_CONTENT: ${{ needs.bump.outputs.api-tag && format('updated to {0}', needs.bump.outputs.api-tag) || format('v{0}', steps.get-tags.outputs.api) }}
         run: |
           sed -i "s/{{web_content}}/$WEB_CONTENT/g" ${{ env.TEMPLATE_DIR }}
           sed -i "s/{{api_content}}/$API_CONTENT/g" ${{ env.TEMPLATE_DIR }}

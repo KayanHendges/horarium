@@ -32,7 +32,7 @@ runs:
 
     - name: Get api package.json tag
       id: get-api-tag
-      working-directory: apps/web
+      working-directory: apps/api
       shell: bash
       run: |
         tag=`jq -r '.version' package.json`
