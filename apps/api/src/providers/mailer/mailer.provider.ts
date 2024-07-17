@@ -26,13 +26,18 @@ export class MailerProvider {
     return this.transport.sendMail({ ...this.defaultMailOptions, ...options });
   }
 
-  async recoveryPasswordCode(code: string, email: string) {
+  async recoveryPasswordCode(
+    { username, code }: RecoveryPasswordTemplateParams,
+    email: string,
+  ) {
     const template = fs.readFileSync(
       './src/providers/mailer/templates/recoveryPassword.html',
       'utf-8',
     );
 
-    const html = template.replace('{{code}}', code);
+    const html = template
+      .replace('{{username}}', username)
+      .replace('{{code}}', code);
 
     return this.transport.sendMail({
       ...this.defaultMailOptions,

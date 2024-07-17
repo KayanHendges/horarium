@@ -3,11 +3,13 @@ import { MailerProvider } from '@/providers/mailer/mailer.provider';
 import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 import {
   ConflictException,
+  GoneException,
   Injectable,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Cron } from '@nestjs/schedule';
 import { User } from '@repo/db';
 import {
   LoginUserDTO,
@@ -15,6 +17,7 @@ import {
   RegisterUserDTO,
   RegisterUserResponse,
   RequestPasswordRecoveryDTO,
+  ResetPasswordDTO,
 } from '@repo/global';
 import * as bcrypt from 'bcrypt';
 
@@ -25,10 +28,11 @@ export class AuthService {
     private readonly prismaProvider: PrismaProvider,
     private readonly mailerProvider: MailerProvider,
   ) {}
+  private readonly logger = new Logger(AuthService.name);
 
   async register(user: RegisterUserDTO): Promise<RegisterUserResponse> {
     const { password, ...payload } = user;
-    const passwordHash = bcrypt.hashSync(password, 8);
+    const passwordHash = this.hashPassword(password);
 
     const userWithSameEmail = await this.prismaProvider.user.findFirst({
       where: {
@@ -98,12 +102,55 @@ export class AuthService {
     });
 
     this.mailerProvider
-      .recoveryPasswordCode(code, email)
+      .recoveryPasswordCode({ code, username: user.name }, email)
       .catch(() =>
-        Logger.error(`Failed to send password recovery code to email ${email}`),
+        this.logger.error(
+          `Failed to send password recovery code to email ${email}`,
+        ),
       );
 
     return;
+  }
+
+  async resetPassword({ email, code, password }: ResetPasswordDTO) {
+    const tokenFromCode = await this.prismaProvider.token.findFirst({
+      where: { code, user: { email } },
+    });
+
+    if (!tokenFromCode) throw new UnauthorizedException();
+
+    const isExpired = new Date().getTime() > tokenFromCode.expiresAt.getTime();
+
+    if (!tokenFromCode.active || isExpired)
+      throw new GoneException('Token has been dropped or is expired.');
+
+    const passwordHash = this.hashPassword(password);
+
+    await this.prismaProvider.token.update({
+      where: { id: tokenFromCode.id },
+      data: { active: false },
+    });
+
+    const accountFound = await this.prismaProvider.account.findFirst({
+      where: { userId: tokenFromCode.userId, provider: 'PASSWORD' },
+    });
+
+    if (accountFound) {
+      await this.prismaProvider.account.update({
+        where: { id: accountFound.id },
+        data: { passwordHash },
+      });
+    } else {
+      await this.prismaProvider.account.create({
+        data: { userId: tokenFromCode.userId, provider: 'PASSWORD' },
+      });
+    }
+
+    return;
+  }
+
+  private hashPassword(password: string) {
+    return bcrypt.hashSync(password, 8);
   }
 
   private async generateToken({ id }: User): Promise<LoginUserResponse> {
@@ -114,5 +161,17 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken };
+  }
+
+  @Cron('0 0 0 * * *')
+  async clearTokens() {
+    this.logger.log('starting to delete expired tokens.');
+    const { count } = await this.prismaProvider.token.deleteMany({
+      where: { active: false, expiresAt: { lte: new Date() } },
+    });
+
+    this.logger.log(
+      `Expired cleaning token finished. Total deleted: ${count}.`,
+    );
   }
 }

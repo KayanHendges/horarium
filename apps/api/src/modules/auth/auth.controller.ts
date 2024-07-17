@@ -9,6 +9,8 @@ import {
   RegisterUserDTO,
   RequestPasswordRecoveryDTO,
   requestPasswordRecoverySchema,
+  ResetPasswordDTO,
+  resetPasswordSchema,
 } from '@repo/global';
 
 @Controller('auth')
@@ -34,5 +36,12 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(requestPasswordRecoverySchema))
   async recoveryPassword(@Body() body: RequestPasswordRecoveryDTO) {
     return await this.authService.requestPasswordRecovery(body);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
+  async resetPassword(@Body() body: ResetPasswordDTO) {
+    return await this.authService.resetPassword(body);
   }
 }

@@ -1,10 +1,9 @@
-import clsx from "clsx";
 import { Slot } from "@radix-ui/react-slot";
 import { ComponentProps, forwardRef } from "react";
 import { VariantProps, tv } from "tailwind-variants";
 
 const text = tv({
-  base: "font-sans text-zinc-900 dark:text-zinc-200",
+  base: "font-sans",
   variants: {
     size: {
       sm: "text-xs",

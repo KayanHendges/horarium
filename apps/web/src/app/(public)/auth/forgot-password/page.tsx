@@ -1,3 +1,3 @@
-export default async function ForgotPassword(){
-  return "Forgot Password"
-} 
+export default async function ForgotPassword() {
+  return "Forgot Password";
+}

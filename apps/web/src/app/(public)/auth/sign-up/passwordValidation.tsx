@@ -15,7 +15,7 @@ export function PasswordValidation({ password, schema }: Props) {
 
   if (matchMinimumLength)
     return (
-      <Text size="sm" className={"flex items-center text-green-400"}>
+      <Text size="sm" className={"flex items-center text-positive"}>
         <Check className="mr-1" size={16} /> Contém ao menos{" "}
         {minimumPasswordLength} caracteres.
       </Text>

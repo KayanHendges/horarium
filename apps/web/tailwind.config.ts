@@ -37,6 +37,10 @@ const config = {
           DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
         },
+        positive: {
+          DEFAULT: "var(--positive)",
+          foreground: "var(--positive-foreground)",
+        },
         destructive: {
           DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",

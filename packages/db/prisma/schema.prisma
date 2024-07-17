@@ -37,7 +37,7 @@ enum AccountProvider {
 model Account {
   id                String          @id @default(auto()) @map("_id") @db.ObjectId
   provider          AccountProvider
-  providerAccountId String?         @unique @map("provider_account_id")
+  providerAccountId String?         @map("provider_account_id")
   passwordHash      String?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
