@@ -38,7 +38,6 @@ export function SignUpForm() {
     e.preventDefault();
     handleForm(
       async (data) => {
-        console.log;
         if (data.password !== data.confirmPassword)
           return setError("confirmPassword", {
             message: "The passwords do not match",

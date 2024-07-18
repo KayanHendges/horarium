@@ -1,3 +1,5 @@
+import { ResetPasswordForm } from "./resetPasswordForm";
+
 export default async function ForgotPassword() {
-  return "Forgot Password";
+  return <ResetPasswordForm />;
 }

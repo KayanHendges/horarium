@@ -36,7 +36,11 @@ export type RequestPasswordRecoveryDTO = z.infer<
 export const resetPasswordSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  code: z.string(),
+  code: z
+    .string()
+    .min(6)
+    .max(6)
+    .regex(/\d.*/g, { message: 'Only number are allowed.' }),
 })
 
 export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>

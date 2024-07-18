@@ -35,8 +35,8 @@
     }
 
     .dark {
-      --background: var(--foreground);
-      --foreground: var(--background);
+      --background: hsl(240, 10%, 4%);
+      --foreground: hsl(0, 0%, 98%);
       --card: hsl(240, 10%, 4%);
       --card-foreground: hsl(0, 0%, 98%);
       --popover: hsl(240, 10%, 4%);

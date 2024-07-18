@@ -1,5 +1,6 @@
 import { Text } from "@/components/typography/text";
-import { Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Check, Info, X } from "lucide-react";
 import { z } from "zod";
 
 interface Props {
@@ -22,9 +23,16 @@ export function PasswordValidation({ password, schema }: Props) {
     );
 
   return (
-    <Text size="sm" className={"flex items-center text-destructive"}>
-      <X className="mr-1" size={16} /> Precisa conter ao menos{" "}
-      {minimumPasswordLength} caracteres.
+    <Text
+      size="sm"
+      className={cn("flex items-center", password.length && "text-destructive")}
+    >
+      {password.length ? (
+        <X className="mr-1" size={16} />
+      ) : (
+        <Info className="mr-1" size={16} />
+      )}{" "}
+      Precisa conter ao menos {minimumPasswordLength} caracteres.
     </Text>
   );
 }

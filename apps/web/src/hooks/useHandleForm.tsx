@@ -35,10 +35,10 @@ export function useHandleForm<T extends z.ZodObject<any>>(
     ...options,
   });
 
-  const handleForm = async (
-    action: (data: z.TypeOf<T>) => Promise<void> | void,
+  async function handleForm<R>(
+    action: (data: z.TypeOf<T>) => Promise<R> | R,
     actionOptions?: ActionOptions<T>
-  ) => {
+  ): Promise<R | undefined> {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -60,9 +60,12 @@ export function useHandleForm<T extends z.ZodObject<any>>(
         })();
       });
 
-      if (data) await action(data);
+      if (data) {
+        const response = await action(data);
+        setIsSubmitting(false);
+        return response;
+      }
     } catch (error) {
-      console.error(error);
       if (!(error instanceof FetchApiException)) {
         toast({
           title: "Houve uma falha",
@@ -101,7 +104,7 @@ export function useHandleForm<T extends z.ZodObject<any>>(
     }
 
     setIsSubmitting(false);
-  };
+  }
 
   return { ...form, isSubmitting, handleForm };
 }
