@@ -8,33 +8,53 @@ import React, {
   useState,
 } from "react";
 import { Text } from "../typography/text";
+import { Button, ButtonProps } from "./button";
 import { Card, CardContent, CardHeader } from "./card";
-import { Separator } from "./separator";
+import { StepTransition } from "./step-transition";
 
 interface IStepperRootProps extends ComponentPropsWithoutRef<"div"> {}
+
+type StepperNav = "previous" | "next";
 
 interface IStepperContext {
   stepCount: number;
   setStepCount: (count: number) => void;
+  handleNav: (nav: StepperNav) => Promise<void>;
   selectedStep: number;
-  setSelectedStep: (index: number) => void;
-  onFinish?: () => Promise<void>;
 }
 
 const StepperContext = createContext({} as IStepperContext);
 
 interface IStepperRootProps extends ComponentPropsWithoutRef<"div"> {
+  stepperState?: [number, React.Dispatch<React.SetStateAction<number>>];
   onFinish?: () => Promise<void>;
 }
 
 const StepperRoot = ({
   className,
   children,
+  stepperState,
   onFinish,
   ...props
 }: IStepperRootProps) => {
+  const internalStepState = useState<number>(0);
+  const [selectedStep, setSelectedStep] = stepperState || internalStepState;
   const [stepCount, setStepCount] = useState<number>(0);
-  const [selectedStep, setSelectedStep] = useState<number>(0);
+
+  const handleNav = async (nav: StepperNav) => {
+    if (nav === "previous") {
+      if (selectedStep <= 0) return setSelectedStep(0);
+      return setSelectedStep(selectedStep - 1);
+    }
+
+    if (selectedStep + 1 >= stepCount) {
+      if (onFinish) await onFinish();
+
+      return setSelectedStep(stepCount - 1);
+    }
+
+    return setSelectedStep(selectedStep + 1);
+  };
 
   return (
     <StepperContext.Provider
@@ -42,8 +62,7 @@ const StepperRoot = ({
         stepCount,
         setStepCount,
         selectedStep,
-        setSelectedStep,
-        onFinish,
+        handleNav,
       }}
     >
       <Card className={cn("flex flex-col", className)} {...props}>
@@ -54,9 +73,33 @@ const StepperRoot = ({
 };
 StepperRoot.displayName = "Stepper.Root";
 
+interface IStepperProgressBarProps {
+  isCompleted?: boolean;
+  isSelected?: boolean;
+}
+
+const StepperProgressBar = ({
+  isCompleted,
+  isSelected,
+}: IStepperProgressBarProps) => {
+  return (
+    <div
+      className={cn(
+        "flex-1 h-[1px] rounded transition-all",
+        isSelected
+          ? "bg-primary"
+          : isCompleted
+            ? "bg-muted-foreground"
+            : "bg-muted"
+      )}
+    />
+  );
+};
+
 interface IStepperHeaderItemProps extends ComponentPropsWithoutRef<"div"> {
   icon?: ReactElement;
   index?: number;
+  isCompleted?: boolean;
   isSelected?: boolean;
 }
 
@@ -65,6 +108,7 @@ const StepperHeaderItem = ({
   children,
   icon,
   index = 1,
+  isCompleted,
   isSelected,
   ...props
 }: IStepperHeaderItemProps) => {
@@ -80,7 +124,11 @@ const StepperHeaderItem = ({
       <Text
         className={cn(
           "flex justify-center items-center h-6 w-6 rounded-full transition-all",
-          isSelected ? "bg-foreground text-background" : "bg-muted"
+          isSelected
+            ? "bg-brand text-brand-foreground"
+            : isCompleted
+              ? "bg-foreground text-background"
+              : "bg-muted"
         )}
       >
         {icon || stepNumber}
@@ -122,13 +170,20 @@ const StepperHeader = ({
     <CardHeader className={cn("flex-row items-center", className)} {...props}>
       {React.Children.map(children, (child, index) => {
         if (React.isValidElement(child) && child.type === StepperHeaderItem) {
-          // Clone o elemento filho e passe as props dinâmicas
+          const isCompleted = index <= selectedStep;
+          const isSelected = selectedStep === index;
           return (
             <>
-              {index > 0 && <Separator className="flex-1" />}
+              {index > 0 && (
+                <StepperProgressBar
+                  isCompleted={isCompleted}
+                  isSelected={isSelected}
+                />
+              )}
               {React.cloneElement(child, {
                 index,
-                isSelected: selectedStep === index,
+                isCompleted,
+                isSelected,
               })}
             </>
           );
@@ -151,11 +206,9 @@ const StepperContentItem = React.forwardRef<
   HTMLFormElement,
   IStepperContentItemProps
 >(({ className, children, handleNextStepSubmit, ...props }, ref) => {
-  const { selectedStep, stepCount, setSelectedStep, onFinish } =
-    useContext(StepperContext);
+  const { handleNav } = useContext(StepperContext);
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("aqui");
     e.preventDefault();
 
     const submitSuccess = handleNextStepSubmit
@@ -164,12 +217,7 @@ const StepperContentItem = React.forwardRef<
 
     if (!submitSuccess) return;
 
-    if (selectedStep + 1 >= stepCount) {
-      onFinish && (await onFinish());
-      return;
-    }
-
-    setSelectedStep(selectedStep + 1);
+    await handleNav("next");
   };
 
   return (
@@ -178,10 +226,7 @@ const StepperContentItem = React.forwardRef<
         "w-full flex-1 flex justify-center items-center",
         className
       )}
-      onSubmit={(e) => {
-        console.log("submit");
-        handleOnSubmit(e);
-      }}
+      onSubmit={handleOnSubmit}
       {...props}
       ref={ref}
     >
@@ -213,14 +258,31 @@ const StepperContent = ({
       )}
       {...props}
     >
-      {React.Children.map(children, (child, index) => {
-        if (index != selectedStep) return <></>;
-        return child;
-      })}
+      <StepTransition selectedStep={selectedStep}>{children}</StepTransition>
     </CardContent>
   );
 };
 StepperContent.displayName = "Stepper.Content";
+
+interface IStepperButtonProps extends ButtonProps {
+  nav?: StepperNav;
+}
+
+const StepperButton = ({ nav = "next", ...props }: IStepperButtonProps) => {
+  const { handleNav } = useContext(StepperContext);
+  const defaultButtonType = nav === "previous" ? "button" : undefined;
+
+  const handleOnClick = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    if (props.onClick) props.onClick(event);
+
+    if (props.type !== "submit") await handleNav(nav);
+  };
+
+  return <Button type={defaultButtonType} {...props} onClick={handleOnClick} />;
+};
+StepperButton.displayName = "Stepper.Button";
 
 export const Stepper = {
   Root: StepperRoot,
@@ -228,4 +290,5 @@ export const Stepper = {
   HeaderItem: StepperHeaderItem,
   Content: StepperContent,
   ContentItem: StepperContentItem,
+  Button: StepperButton,
 };

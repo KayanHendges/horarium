@@ -1,9 +1,9 @@
+import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -22,6 +22,11 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en">
+      <script src="https://apis.google.com/js/platform.js" async defer></script>
+      <meta
+        name="google-signin-client_id"
+        content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      ></meta>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",

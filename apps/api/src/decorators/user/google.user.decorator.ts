@@ -1,12 +1,12 @@
-import { JwtPayload } from '@/guards/auth/types';
+import { GoogleUserPayload } from '@/guards/google/google-oauth.strategy';
 import {
   createParamDecorator,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
 
-export const CurrentUser = createParamDecorator(
-  (_: any, context: ExecutionContext): JwtPayload => {
+export const GoogleUser = createParamDecorator(
+  (_: any, context: ExecutionContext): GoogleUserPayload => {
     const request = context.switchToHttp().getRequest();
 
     const user = request?.user;

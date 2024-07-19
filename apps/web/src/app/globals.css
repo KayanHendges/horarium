@@ -5,6 +5,7 @@
   @layer base {
     :root {
       --brand: hsl(243, 75%, 59%);
+      --brand-foreground: hsl(0, 0%, 98%);
       --background: hsl(0, 0%, 98%);
       --foreground: hsl(240, 10%, 7%);
       --card: hsl(0, 0%, 100%);
@@ -35,6 +36,8 @@
     }
 
     .dark {
+      --brand: hsl(243, 75%, 59%);
+      --brand-foreground: hsl(0, 0%, 98%);
       --background: hsl(240, 10%, 4%);
       --foreground: hsl(0, 0%, 98%);
       --card: hsl(240, 10%, 4%);

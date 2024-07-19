@@ -4,24 +4,37 @@ import { LoginUserDTO } from "@repo/global";
 import { deleteCookie, setCookie } from "cookies-next";
 import { jwtDecode } from "jwt-decode";
 
-export const signIn = async(
+export const saveAccessToken = (accessToken: string) => {
+  const { exp } = jwtDecode(accessToken);
+
+  const maxAgeFallback = 60 * 60 * 24; // 1 day
+  const now = new Date().getTime() / 1000;
+  const maxAge = typeof exp === "number" ? exp - now : maxAgeFallback;
+
+  setCookie(variables.accessTokenVar, accessToken, {
+    path: "/",
+    maxAge,
+  });
+};
+
+export const signIn = async (
   payload: LoginUserDTO,
   redirectFn: (path: string) => void
 ) => {
   const { accessToken } = await authProvider.signIn(payload);
 
-        const { exp } = jwtDecode(accessToken);
+  saveAccessToken(accessToken);
 
-        const maxAgeFallback = 60 * 60 * 24; // 1 day
-        const now = new Date().getTime() / 1000;
-        const maxAge = typeof exp === "number" ? exp - now : maxAgeFallback;
+  redirectFn("/");
+};
 
-        setCookie(variables.accessTokenVar, accessToken, {
-          path: "/",
-          maxAge,
-        });
+export const signInWithGoogle = async (redirectFn: (path: string) => void) => {
+  const apiSingInUrl = new URL(
+    "/auth/google/callback",
+    process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  );
 
-        redirectFn("/");
+  redirectFn(apiSingInUrl.toString());
 };
 
 export const signOut = (redirectFn: (path: string) => void) => {

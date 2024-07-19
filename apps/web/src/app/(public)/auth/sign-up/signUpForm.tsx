@@ -80,47 +80,48 @@ export function SignUpForm() {
   const password = watch("password") || "";
 
   return (
-    <div className="flex flex-1 flex-col justify-center items-center">
-      <form onSubmit={handleSignUp}>
-        <Card className="min-w-[400px]">
-          <CardHeader>
-            <Heading className="text-center">Crie sua conta</Heading>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <FormInput
-              label="Nome completo"
-              {...register("name")}
-              errorMessage={errors.name?.message}
+    <form
+      className="w-full flex flex-1 items-center justify-center py-4"
+      onSubmit={handleSignUp}
+    >
+      <Card className="min-w-[400px]">
+        <CardHeader>
+          <Heading className="text-center">Crie sua conta</Heading>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <FormInput
+            label="Nome completo"
+            {...register("name")}
+            errorMessage={errors.name?.message}
+          />
+          <FormInput
+            label="Email"
+            {...register("email")}
+            errorMessage={errors.email?.message}
+          />
+          <FormInput label="Senha" errorMessage={errors.password?.message}>
+            <PasswordInput {...register("password")} />
+            <PasswordValidation
+              password={password}
+              schema={registerSchema.shape.password}
             />
-            <FormInput
-              label="Email"
-              {...register("email")}
-              errorMessage={errors.email?.message}
-            />
-            <FormInput label="Senha" errorMessage={errors.password?.message}>
-              <PasswordInput {...register("password")} />
-              <PasswordValidation
-                password={password}
-                schema={registerSchema.shape.password}
-              />
-            </FormInput>
-            <FormInput
-              label="Confirme sua senha"
-              errorMessage={errors.confirmPassword?.message}
-            >
-              <PasswordInput {...register("confirmPassword")} />
-            </FormInput>
-            <div className="flex flex-col gap-2">
-              <Button type="submit" isLoading={isSubmitting}>
-                Criar
-              </Button>
-              <Button type="button" variant={"secondary"}>
-                Entre com o Google
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </form>
-    </div>
+          </FormInput>
+          <FormInput
+            label="Confirme sua senha"
+            errorMessage={errors.confirmPassword?.message}
+          >
+            <PasswordInput {...register("confirmPassword")} />
+          </FormInput>
+          <div className="flex flex-col gap-2">
+            <Button type="submit" isLoading={isSubmitting}>
+              Criar
+            </Button>
+            <Button type="button" variant={"secondary"}>
+              Entre com o Google
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </form>
   );
 }

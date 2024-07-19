@@ -26,7 +26,10 @@ const config = {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
-        brand: "var(--brand)",
+        brand: {
+          DEFAULT: "var(--brand)",
+          foreground: "var(--brand-foreground)",
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {

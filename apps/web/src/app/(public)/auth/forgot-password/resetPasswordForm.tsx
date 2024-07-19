@@ -4,7 +4,6 @@ import { FormInput } from "@/components/inputs/formInput";
 import { PasswordInput } from "@/components/inputs/passwordInput";
 import { Heading } from "@/components/typography/heading";
 import { Text } from "@/components/typography/text";
-import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
@@ -21,6 +20,7 @@ import {
   resetPasswordSchema,
 } from "@repo/global";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { z } from "zod";
 import { PasswordValidation } from "../sign-up/passwordValidation";
 
@@ -30,6 +30,8 @@ const resetPasswordFormSchema = z.object({
 });
 
 export function ResetPasswordForm() {
+  const stepperState = useState<number>(0);
+  const [currentStep, setStep] = stepperState;
   const recoveryForm = useHandleForm(requestPasswordRecoverySchema);
   const resetPasswordForm = useHandleForm(resetPasswordFormSchema);
 
@@ -52,7 +54,7 @@ export function ResetPasswordForm() {
       return;
     }
 
-    return true;
+    setStep(currentStep + 1);
   };
 
   const handleResetPassword = async () => {
@@ -72,8 +74,20 @@ export function ResetPasswordForm() {
       },
       {
         onApiErrorStatus: {
-          401: { toast: { title: "Token inválido." } },
-          410: { toast: { title: "Token descartado ou expirado." } },
+          401: {
+            toast: { title: "Token inválido." },
+            onError: () => {
+              resetPasswordForm.setValue("code", "");
+              setStep(currentStep - 1);
+            },
+          },
+          410: {
+            toast: { title: "Token descartado ou expirado." },
+            onError: () => {
+              resetPasswordForm.setValue("code", "");
+              setStep(currentStep - 1);
+            },
+          },
         },
       }
     );
@@ -85,7 +99,10 @@ export function ResetPasswordForm() {
 
   return (
     <div className="w-full flex flex-col flex-1 items-center justify-center py-16">
-      <Stepper.Root className="w-full max-w-[720px] flex-1">
+      <Stepper.Root
+        className="w-full max-w-[720px] flex-1"
+        stepperState={stepperState}
+      >
         <Stepper.Header>
           <Stepper.HeaderItem>Email de recuperação</Stepper.HeaderItem>
           <Stepper.HeaderItem>Validação do código</Stepper.HeaderItem>
@@ -93,7 +110,7 @@ export function ResetPasswordForm() {
         </Stepper.Header>
         <Stepper.Content>
           <Stepper.ContentItem
-            className="flex w-full max-w-96 flex-col gap-4"
+            className="flex w-full max-w-96 py-4 flex-col justify-start"
             handleNextStepSubmit={handleRequestRecoveryCode}
           >
             <div className="text-center">
@@ -102,23 +119,23 @@ export function ResetPasswordForm() {
                 Digite o email da conta que deseja recuperar
               </Text>
             </div>
-            <div className="max-w-96 w-full flex flex-col gap-4">
+            <div className="max-w-96 w-full flex flex-col gap-4 my-auto">
               <FormInput
                 label="Email"
                 {...recoveryForm.register("email")}
                 errorMessage={recoveryForm.formState.errors.email?.message}
               />
-              <Button
+              <Stepper.Button
                 className="w-full"
                 type="submit"
                 isLoading={recoveryForm.isSubmitting}
               >
                 Enviar
-              </Button>
+              </Stepper.Button>
             </div>
           </Stepper.ContentItem>
           <Stepper.ContentItem
-            className="flex flex-col gap-6"
+            className="flex w-full max-w-96 py-4 flex-col justify-start"
             handleNextStepSubmit={handleCodeForm}
           >
             <div className="text-center">
@@ -127,12 +144,14 @@ export function ResetPasswordForm() {
                 Digite o código com 6 dígitos que enviamos para o seu email.
               </Text>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-10 my-auto">
               <InputOTP
                 maxLength={6}
                 onChange={(value) => {
                   resetPasswordForm.setValue("code", value);
                 }}
+                value={resetPasswordForm.watch("code")}
+                onComplete={handleCodeForm}
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
@@ -146,21 +165,25 @@ export function ResetPasswordForm() {
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              <Button
-                className="w-full"
-                type="submit"
-                isLoading={recoveryForm.isSubmitting}
-              >
-                Enviar
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Stepper.Button
+                  type="submit"
+                  isLoading={recoveryForm.isSubmitting}
+                >
+                  Enviar
+                </Stepper.Button>
+                <Stepper.Button variant={"secondary"} nav="previous">
+                  Voltar
+                </Stepper.Button>
+              </div>
             </div>
           </Stepper.ContentItem>
           <Stepper.ContentItem
             handleNextStepSubmit={handleResetPassword}
-            className="flex flex-col gap-4"
+            className="flex w-full max-w-96 py-4 flex-col justify-start"
           >
             <Heading>Redefina sua senha</Heading>
-            <div className="max-w-96 w-full flex flex-col gap-4">
+            <div className="max-w-96 w-full flex flex-col gap-4 my-auto">
               <FormInput
                 label="Nova senha"
                 errorMessage={
@@ -183,13 +206,17 @@ export function ResetPasswordForm() {
                   {...resetPasswordForm.register("confirmPassword")}
                 />
               </FormInput>
-              <Button
-                className="w-full"
-                type="submit"
-                isLoading={resetPasswordForm.isSubmitting}
-              >
-                Redefinir
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Stepper.Button
+                  type="submit"
+                  isLoading={resetPasswordForm.isSubmitting}
+                >
+                  Redefinir
+                </Stepper.Button>
+                <Stepper.Button variant={"secondary"} nav="previous">
+                  Voltar
+                </Stepper.Button>
+              </div>
             </div>
           </Stepper.ContentItem>
         </Stepper.Content>

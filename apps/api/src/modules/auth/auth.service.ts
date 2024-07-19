@@ -1,4 +1,5 @@
 import { JwtPayload } from '@/guards/auth/types';
+import { GoogleUserPayload } from '@/guards/google/google-oauth.strategy';
 import { MailerProvider } from '@/providers/mailer/mailer.provider';
 import { PrismaProvider } from '@/providers/prisma/prisma.provider';
 import {
@@ -79,6 +80,14 @@ export class AuthService {
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials.');
 
     return this.generateToken(userFound);
+  }
+
+  async loginGoogle({ email }: GoogleUserPayload): Promise<LoginUserResponse> {
+    const user = await this.prismaProvider.user.findFirstOrThrow({
+      where: { email },
+    });
+
+    return this.generateToken(user);
   }
 
   async requestPasswordRecovery({ email }: RequestPasswordRecoveryDTO) {

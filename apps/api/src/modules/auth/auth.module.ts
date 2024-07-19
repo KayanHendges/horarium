@@ -1,6 +1,8 @@
 import { config } from '@/config/index';
 import { JwtGuard } from '@/guards/auth/auth.guard';
 import { JwtStrategy } from '@/guards/auth/strategies/jwt.strategy';
+import { GoogleOauthGuard } from '@/guards/google/google-oauth.guard';
+import { GoogleStrategy } from '@/guards/google/google-oauth.strategy';
 import { AuthController } from '@/modules/auth/auth.controller';
 import { AuthService } from '@/modules/auth/auth.service';
 import { MailerProvider } from '@/providers/mailer/mailer.provider';
@@ -21,11 +23,16 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [
     AuthService,
     PrismaProvider,
-    JwtStrategy,
     MailerProvider,
+    JwtStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
+    },
+    GoogleStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: GoogleOauthGuard,
     },
   ],
 })

@@ -1,14 +1,18 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Label } from "./label";
 
 export interface TextInputRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
   validation?: "error";
 }
 
-const InputRoot = ({ className, children, validation, ...props }: TextInputRootProps) => {
+const InputRoot = ({
+  className,
+  children,
+  validation,
+  ...props
+}: TextInputRootProps) => {
   return (
     <div
       className={cn(
@@ -36,7 +40,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputProps>(
         id={id}
         type={type}
         className={cn(
-          "group flex-1 h-full bg-transparent px-3 py-1 text-sm transition-colors",
+          "group flex-1 h-full bg-transparent min-w-16 px-3 py-1 text-sm transition-colors",
           "placeholder:text-muted-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
