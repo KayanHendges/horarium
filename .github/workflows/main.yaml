@@ -99,7 +99,12 @@ jobs:
       contents: read
 
   api-cd:
-    needs: [api-ci]
+    needs: [changed-contexts, bump, db-cd, api-ci]
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.changed-contexts.outputs.api == 'true'
     uses: ./.github/workflows/api-cd.yaml
     secrets: inherit
     permissions:
