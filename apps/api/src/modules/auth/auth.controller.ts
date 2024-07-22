@@ -1,19 +1,11 @@
 import { config } from '@/config';
+import { GoogleRoute } from '@/decorators/auth/google.route';
 import { Public } from '@/decorators/auth/public.route';
 import { GoogleUser } from '@/decorators/user/google.user.decorator';
-import { GoogleOauthGuard } from '@/guards/google/google-oauth.guard';
 import { GoogleUserPayload } from '@/guards/google/google-oauth.strategy';
 import { AuthService } from '@/modules/auth/auth.service';
 import { ZodValidationPipe } from '@/pipes/zodValidationPipe';
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Res,
-  UseGuards,
-  UsePipes,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UsePipes } from '@nestjs/common';
 import {
   loginUserDTO,
   LoginUserDTO,
@@ -25,6 +17,7 @@ import {
   resetPasswordSchema,
 } from '@repo/global';
 import { Response } from 'express';
+import { googleErrorCallbackUrl } from './utils';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +38,7 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(GoogleOauthGuard)
+  @GoogleRoute()
   @Get('google/callback')
   async loginGoogle(
     @GoogleUser() user: GoogleUserPayload,
@@ -61,9 +54,7 @@ export class AuthController {
 
       res.redirect(redirectUrl.toString());
     } catch (_err) {
-      const redirectUrl = new URL(`/auth/sign-in`, config.WEB_URL);
-
-      res.redirect(redirectUrl.toString());
+      res.redirect(googleErrorCallbackUrl.toString());
     }
   }
 

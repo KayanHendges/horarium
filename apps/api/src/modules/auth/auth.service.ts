@@ -82,12 +82,45 @@ export class AuthService {
     return this.generateToken(userFound);
   }
 
-  async loginGoogle({ email }: GoogleUserPayload): Promise<LoginUserResponse> {
-    const user = await this.prismaProvider.user.findFirstOrThrow({
+  async loginGoogle({
+    email,
+    name,
+    providerId,
+  }: GoogleUserPayload): Promise<LoginUserResponse> {
+    const userFound = await this.prismaProvider.user.findFirstOrThrow({
       where: { email },
+      include: { accounts: { where: { provider: 'GOOGLE' } } },
     });
 
-    return this.generateToken(user);
+    if (!userFound) {
+      const createdUser = await this.prismaProvider.user.create({
+        data: {
+          email,
+          name,
+          accounts: {
+            create: { provider: 'GOOGLE', providerAccountId: providerId },
+          },
+        },
+      });
+
+      return this.generateToken(createdUser);
+    }
+
+    const account = await userFound.accounts.find(
+      ({ providerAccountId }) => providerAccountId === providerId,
+    );
+
+    if (!account) {
+      await this.prismaProvider.account.create({
+        data: {
+          provider: 'GOOGLE',
+          userId: userFound.id,
+          providerAccountId: providerId,
+        },
+      });
+    }
+
+    return this.generateToken(userFound);
   }
 
   async requestPasswordRecovery({ email }: RequestPasswordRecoveryDTO) {

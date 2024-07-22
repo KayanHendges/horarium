@@ -1,7 +1,6 @@
-import { Toaster } from "@/components/ui/toaster";
+import { ContextProviders } from "@/contexts/context-providers";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 
@@ -33,14 +32,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <ContextProviders>{children}</ContextProviders>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 import { User } from '@repo/db'
 import z from 'zod'
 
+export const nameSchema = z.string().min(2).trim()
 export const emailSchema = z.string().email().trim()
 export const passwordSchema = z.string().min(8).max(64)
 
@@ -12,7 +13,7 @@ export const loginUserDTO = z.object({
 export type LoginUserDTO = z.infer<typeof loginUserDTO>
 
 export const registerUserDTO = z.object({
-  name: z.string().min(2).trim(),
+  name: nameSchema,
   email: emailSchema,
   password: passwordSchema,
 })

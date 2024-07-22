@@ -1,4 +1,5 @@
 import { prismaExceptionFilter } from '@/exceptions/prisma.error.mapper';
+import { googleErrorCallbackUrl } from '@/modules/auth/utils';
 import {
   ArgumentsHost,
   Catch,
@@ -34,6 +35,10 @@ export class GlobalErrorHandler implements ExceptionFilter {
     };
 
     this.logException(exception, exceptionResponse);
+
+    if (((request?.url as string) || '').startsWith('/auth/google/callback')) {
+      return response.redirect(googleErrorCallbackUrl);
+    }
 
     return response
       .status(exceptionResponse.statusCode)

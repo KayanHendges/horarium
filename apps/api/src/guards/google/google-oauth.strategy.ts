@@ -1,7 +1,9 @@
 import { config } from '@/config';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { emailSchema, nameSchema } from '@repo/global';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
+import z from 'zod';
 
 export interface GoogleUserPayload {
   provider: 'google';
@@ -28,10 +30,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    console.log({ _accessToken, _refreshToken, profile });
     const { id, name, emails, photos } = profile;
 
-    const user: GoogleUserPayload = {
+    const payload: GoogleUserPayload = {
       provider: 'google',
       providerId: id,
       email: emails[0].value,
@@ -39,6 +40,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       picture: photos[0].value,
     };
 
-    done(null, user);
+    const googleUserSchema = z.object({
+      provider: z.enum(['google']),
+      providerId: z.string(),
+      email: emailSchema,
+      name: nameSchema,
+      picture: z.string(),
+    });
+
+    const { error, data: user } = googleUserSchema.safeParse(payload);
+
+    done(error, user);
   }
 }

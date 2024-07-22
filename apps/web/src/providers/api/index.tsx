@@ -1,6 +1,6 @@
 import { variables } from "@/config/variables";
+import { getCookieStore } from "@/utils/auth";
 import { getCookie } from "cookies-next";
-import { CookiesFn } from "cookies-next/lib/types";
 
 interface ApiConfig extends RequestInit {
   params?: any;
@@ -72,13 +72,7 @@ class Api {
     options?: ApiConfig
   ): Promise<ResponseAPI<T>> {
     if (!this.token) {
-      let cookieStore: CookiesFn | undefined;
-
-      if (typeof window === "undefined") {
-        const { cookies: serverCookies } = await import("next/headers");
-
-        cookieStore = serverCookies;
-      }
+      const cookieStore = await getCookieStore();
 
       const token = getCookie(variables.accessTokenVar, {
         cookies: cookieStore,

@@ -3,8 +3,15 @@ import { authProvider } from "@/providers/api/auth";
 import { LoginUserDTO } from "@repo/global";
 import { deleteCookie, setCookie } from "cookies-next";
 import { jwtDecode } from "jwt-decode";
+import { getCookieStore } from ".";
 
-export const saveAccessToken = (accessToken: string) => {
+export const saveAccessToken = async (accessToken: string) => {
+  const cookieStore = await getCookieStore();
+
+  setCookie(variables.accessTokenVar, accessToken, {
+    cookies: cookieStore,
+  });
+
   const { exp } = jwtDecode(accessToken);
 
   const maxAgeFallback = 60 * 60 * 24; // 1 day
@@ -12,6 +19,7 @@ export const saveAccessToken = (accessToken: string) => {
   const maxAge = typeof exp === "number" ? exp - now : maxAgeFallback;
 
   setCookie(variables.accessTokenVar, accessToken, {
+    cookies: cookieStore,
     path: "/",
     maxAge,
   });
@@ -23,7 +31,7 @@ export const signIn = async (
 ) => {
   const { accessToken } = await authProvider.signIn(payload);
 
-  saveAccessToken(accessToken);
+  await saveAccessToken(accessToken);
 
   redirectFn("/");
 };

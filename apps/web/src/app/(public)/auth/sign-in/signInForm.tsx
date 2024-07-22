@@ -8,12 +8,14 @@ import { Text } from "@/components/typography/text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/use-toast";
 import { useHandleForm } from "@/hooks/useHandleForm";
 import { signIn, signInWithGoogle } from "@/utils/auth/client";
 import { loginUserDTO } from "@repo/global";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export function SignInForm() {
   const {
@@ -24,6 +26,8 @@ export function SignInForm() {
   } = useHandleForm(loginUserDTO);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const handleSignIn = async (
     e: React.FormEvent<HTMLFormElement>
@@ -35,6 +39,27 @@ export function SignInForm() {
       },
     });
   };
+
+  useEffect(() => {
+    if (searchParams.get("error")) {
+      toast({
+        title: "Erro ao fazer login",
+        description: "Tente novamente em alguns instantes",
+        variant: "destructive",
+        duration: 2 * 1000, // 2s
+      });
+
+      const queryParams = new URLSearchParams(
+        Array.from(searchParams.entries())
+      );
+
+      queryParams.delete("error");
+      const search = queryParams.toString();
+      const query = search ? `?${search}` : "";
+
+      router.push(`${pathname}${query}`);
+    }
+  }, [pathname, router, searchParams]);
 
   return (
     <form

@@ -1,6 +1,9 @@
 import { variables } from "@/config/variables";
-import { cookies } from "next/headers";
+import { getCookie } from "cookies-next";
+import { getCookieStore } from ".";
 
-export const isAuthenticated = () => {
-  return !!cookies().get(variables.accessTokenVar)?.value;
+export const isAuthenticated = async () => {
+  const cookieStore = await getCookieStore();
+
+  return !!getCookie(variables.accessTokenVar, { cookies: cookieStore });
 };
