@@ -19,6 +19,9 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        mobile: { max: "768px" },
+      },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },

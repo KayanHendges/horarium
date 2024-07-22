@@ -88,7 +88,7 @@ export class AuthService {
     providerId,
     picture,
   }: GoogleUserPayload): Promise<LoginUserResponse> {
-    const userFound = await this.prismaProvider.user.findFirstOrThrow({
+    const userFound = await this.prismaProvider.user.findFirst({
       where: { email },
       include: { accounts: { where: { provider: 'GOOGLE' } } },
     });
