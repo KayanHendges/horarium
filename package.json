@@ -19,5 +19,5 @@
   "dependencies": {
     "dotenv-cli": "^7.4.2"
   },
-  "version": "0.0.16"
+  "version": "0.0.17"
 }
