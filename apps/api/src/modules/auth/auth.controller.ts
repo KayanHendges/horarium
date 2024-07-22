@@ -5,7 +5,15 @@ import { GoogleUser } from '@/decorators/user/google.user.decorator';
 import { GoogleUserPayload } from '@/guards/google/google-oauth.strategy';
 import { AuthService } from '@/modules/auth/auth.service';
 import { ZodValidationPipe } from '@/pipes/zodValidationPipe';
-import { Body, Controller, Get, Post, Res, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Res,
+  UsePipes,
+} from '@nestjs/common';
 import {
   loginUserDTO,
   LoginUserDTO,
@@ -21,6 +29,8 @@ import { googleErrorCallbackUrl } from './utils';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @Public()
@@ -54,6 +64,7 @@ export class AuthController {
 
       res.redirect(redirectUrl.toString());
     } catch (_err) {
+      this.logger.warn(_err);
       res.redirect(googleErrorCallbackUrl.toString());
     }
   }
