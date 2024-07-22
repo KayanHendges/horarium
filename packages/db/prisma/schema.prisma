@@ -54,14 +54,20 @@ model Workspace {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   name String
+  type WorkspaceType @default(personal)
 
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  membership Membership?
+  membership Membership[]
   role       Role[]
 
   @@map("workspaces")
+}
+
+enum WorkspaceType {
+  personal
+  shared
 }
 
 model Membership {
