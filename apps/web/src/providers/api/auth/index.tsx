@@ -7,22 +7,23 @@ import {
   RequestPasswordRecoveryDTO,
   ResetPasswordDTO,
 } from "@repo/global";
+import { handleAPIResponse } from "../utils";
 
 class AuthProvider {
   signIn = async (payload: LoginUserDTO): Promise<LoginUserResponse> =>
-    (await api.post("auth/login", payload)).data;
+    handleAPIResponse(api.post("auth/login", payload));
 
   signUp = async (payload: RegisterUserDTO): Promise<RegisterUserResponse> =>
-    (await api.post("auth/register", payload)).data;
+    handleAPIResponse(api.post("auth/register", payload));
 
   requestPasswordRecoveryCode = async (
     payload: RequestPasswordRecoveryDTO
   ): Promise<void> => {
-    (await api.post("auth/recovery-password", payload)).data;
+    handleAPIResponse(api.post("auth/recovery-password", payload));
   };
 
   resetPassword = async (payload: ResetPasswordDTO): Promise<void> => {
-    (await api.post("auth/reset-password", payload)).data;
+    handleAPIResponse(api.post("auth/reset-password", payload));
   };
 }
 

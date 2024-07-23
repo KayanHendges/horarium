@@ -1,19 +1,11 @@
 import { config } from '@/config';
 import { GoogleRoute } from '@/decorators/auth/google.route';
 import { Public } from '@/decorators/auth/public.route';
+import { ZodBody } from '@/decorators/dto/zod-body.decorator';
 import { GoogleUser } from '@/decorators/user/google.user.decorator';
 import { GoogleUserPayload } from '@/guards/google/google-oauth.strategy';
 import { AuthService } from '@/modules/auth/auth.service';
-import { ZodValidationPipe } from '@/pipes/zodValidationPipe';
-import {
-  Body,
-  Controller,
-  Get,
-  Logger,
-  Post,
-  Res,
-  UsePipes,
-} from '@nestjs/common';
+import { Controller, Get, Logger, Post, Res } from '@nestjs/common';
 import {
   loginUserDTO,
   LoginUserDTO,
@@ -35,15 +27,13 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @UsePipes(new ZodValidationPipe(registerUserDTO))
-  register(@Body() body: RegisterUserDTO) {
+  register(@ZodBody(registerUserDTO) body: RegisterUserDTO) {
     return this.authService.register(body);
   }
 
   @Public()
   @Post('login')
-  @UsePipes(new ZodValidationPipe(loginUserDTO))
-  async login(@Body() body: LoginUserDTO) {
+  async login(@ZodBody(loginUserDTO) body: LoginUserDTO) {
     return await this.authService.login(body);
   }
 
@@ -71,15 +61,15 @@ export class AuthController {
 
   @Public()
   @Post('recovery-password')
-  @UsePipes(new ZodValidationPipe(requestPasswordRecoverySchema))
-  async recoveryPassword(@Body() body: RequestPasswordRecoveryDTO) {
+  async recoveryPassword(
+    @ZodBody(requestPasswordRecoverySchema) body: RequestPasswordRecoveryDTO,
+  ) {
     return await this.authService.requestPasswordRecovery(body);
   }
 
   @Public()
   @Post('reset-password')
-  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
-  async resetPassword(@Body() body: ResetPasswordDTO) {
+  async resetPassword(@ZodBody(resetPasswordSchema) body: ResetPasswordDTO) {
     return await this.authService.resetPassword(body);
   }
 }

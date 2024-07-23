@@ -36,3 +36,8 @@ export const paginationAndSortDTO = z.object({
 })
 
 export type PaginationAndSortDTO = z.infer<typeof paginationAndSortDTO>
+
+export interface ListItems<T> {
+  list: T[]
+  count: number
+}
