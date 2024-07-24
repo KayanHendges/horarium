@@ -8,6 +8,7 @@ import z from 'zod'
 
 import { User } from './models/user'
 import { permissions } from './permissions'
+import { Role } from './roles'
 import { workspaceSubject } from './subjects/workspace'
 
 const appAbilitiesSchema = z.union([
@@ -15,7 +16,7 @@ const appAbilitiesSchema = z.union([
   z.tuple([z.literal('manage'), z.literal('all')]),
 ])
 
-type AppAbilities = z.infer<typeof appAbilitiesSchema>
+export type AppAbilities = z.infer<typeof appAbilitiesSchema>
 
 export type AppAbility = MongoAbility<AppAbilities>
 export const createAppAbility = createMongoAbility as CreateAbility<AppAbility>
@@ -37,6 +38,17 @@ export function defineAbilityFor(user: User) {
 
   ability.can = ability.can.bind(ability)
   ability.cannot = ability.cannot.bind(ability)
+
+  return ability
+}
+
+export const getUserPermission = (userId: string, role: Role) => {
+  const authUser: User = {
+    id: userId,
+    role,
+  }
+
+  const ability = defineAbilityFor(authUser)
 
   return ability
 }

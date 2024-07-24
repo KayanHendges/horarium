@@ -9,7 +9,7 @@ interface ApiConfig extends RequestInit {
 
 interface RequestConfig extends Omit<ApiConfig, "method"> {}
 
-interface ResponseAPI<T = any> extends Response {
+export interface ResponseAPI<T = any> extends Response {
   data: T;
 }
 
@@ -38,7 +38,7 @@ class Api {
 
   async post<T = any>(
     path: string,
-    body: Record<string, any>,
+    body?: Record<string, any>,
     options?: RequestConfig
   ) {
     return this.request<T>(path, {
@@ -50,7 +50,7 @@ class Api {
 
   async patch<T = any>(
     path: string,
-    body: Record<string, any>,
+    body?: Record<string, any>,
     options?: RequestConfig
   ) {
     return this.request<T>(path, {
