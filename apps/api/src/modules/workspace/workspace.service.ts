@@ -7,13 +7,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateWorkspaceDTO, ListWorkspaces, Workspace } from '@repo/global';
+import {
+  CreateWorkspaceDTO,
+  ListWorkspacesResponse,
+  Workspace,
+} from '@repo/global';
 
 @Injectable()
 export class WorkspaceService {
   constructor(private readonly prismaProvider: PrismaProvider) {}
 
-  async list(userId: string): Promise<ListWorkspaces> {
+  async list(userId: string): Promise<ListWorkspacesResponse> {
     const list = await this.prismaProvider.workspace.findMany({
       where: { memberships: { some: { userId } } },
     });

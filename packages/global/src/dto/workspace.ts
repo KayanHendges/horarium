@@ -22,4 +22,4 @@ export const workspaceParamsSchema = z.object({
 
 export type WorkspaceParamsDTO = z.infer<typeof workspaceParamsSchema>
 
-export interface ListWorkspaces extends ListItems<Workspace> {}
+export interface ListWorkspacesResponse extends ListItems<Workspace> {}

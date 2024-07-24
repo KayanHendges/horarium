@@ -27,9 +27,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     queryKey: ["listWorkspaces"],
     initialData: [],
     queryFn: async () => {
-      const workspaces = await workspaceProvider.listUserWorkspace();
+      const { list } = await workspaceProvider.listUserWorkspace();
 
-      if (!workspaces.length) {
+      if (!list.length) {
         const createdWorkspace = await workspaceProvider.createWorkspace({
           name: user.name,
           type: "personal",
@@ -38,7 +38,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         return [createdWorkspace];
       }
 
-      return workspaces;
+      return list;
     },
   });
 

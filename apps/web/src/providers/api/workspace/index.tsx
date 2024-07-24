@@ -1,9 +1,13 @@
 import { api } from "@/providers/api";
-import { CreateWorkspaceDTO, Workspace } from "@repo/global";
+import {
+  CreateWorkspaceDTO,
+  ListWorkspacesResponse,
+  Workspace,
+} from "@repo/global";
 import { handleAPIResponse } from "../utils";
 
 class WorkspaceProvider {
-  listUserWorkspace = async (): Promise<Workspace[]> =>
+  listUserWorkspace = async (): Promise<ListWorkspacesResponse> =>
     handleAPIResponse(api.get("workspace"));
 
   createWorkspace = async (payload: CreateWorkspaceDTO): Promise<Workspace> =>
