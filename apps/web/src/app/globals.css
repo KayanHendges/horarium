@@ -4,7 +4,7 @@
 
   @layer base {
     :root {
-      --brand: hsl(243, 75%, 59%);
+      --brand: hsl(221, 83%, 53%);
       --brand-foreground: hsl(0, 0%, 98%);
       --background: hsl(0, 0%, 98%);
       --foreground: hsl(240, 10%, 7%);

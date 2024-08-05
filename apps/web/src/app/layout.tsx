@@ -10,8 +10,8 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
-  title: "Product",
-  description: "System as a service example",
+  title: "Horarium",
+  description: "Smart Scheduling",
 };
 
 export default function RootLayout({

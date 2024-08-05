@@ -3,8 +3,9 @@ import { Heading } from "@/components/typography/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ShoppingCart } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import logo from "@public/horarium.svg";
 
 export default async function Header() {
   return (
@@ -15,9 +16,15 @@ export default async function Header() {
       )}
     >
       <div className="flex gap-4 items-center">
-        <ShoppingCart />
+        <Image
+          className="text-red-600"
+          src={logo}
+          alt=""
+          width={48}
+          height={48}
+        />
         <Separator orientation="vertical" />
-        <Heading className="text-brand">Product</Heading>
+        <Heading className="text-brand">Horarium</Heading>
       </div>
       <div className="flex gap-4 items-center">
         <ThemeSwitcher />

@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isAuthRoute = /auth\/.*/.test(path);
-  const isPublicRoute = /(product|product\/).*/.test(path);
+  const isPublicRoute = /(welcome|welcome\/).*/.test(path);
 
   if (authCookie && isAuthRoute) {
     const redirectUrl = request.nextUrl.clone();
