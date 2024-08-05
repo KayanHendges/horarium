@@ -72,7 +72,7 @@ jobs:
 
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-          echo "GOOGLE_CALLBACK_URL=${{ vars.GOOGLE_CALLBACK_URL }}" >> .env
+          echo "GOOGLE_CALLBACK_URL=https://${{ vars.API_DOMAIN }}/auth/google/callback" >> .env
 
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
 
@@ -80,7 +80,7 @@ jobs:
       - name: copy files to target server via scp
         uses: appleboy/scp-action@v0.1.3
         with:
-          host: ${{ vars.DOMAIN }}
+          host: ${{ vars.API_DOMAIN }}
           username: ${{ secrets.SSH_USER }}
           port: 22
           key: ${{ secrets.SSH_KEY }}
@@ -99,7 +99,7 @@ jobs:
           ECR_PASSWORD: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, env.AWS_ECR_REGION)] }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         with:
-          host: ${{ vars.DOMAIN }}
+          host: ${{ vars.API_DOMAIN }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
