@@ -10,8 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { ComponentProps } from "react";
+import { TypeOf } from "zod";
 
-export function ThemeSwitcher() {
+interface Props {
+  side?: ComponentProps<typeof DropdownMenuContent>["side"];
+}
+
+export function ThemeSwitcher({ side }: Props) {
   const { setTheme } = useTheme();
 
   return (
@@ -24,7 +30,7 @@ export function ThemeSwitcher() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" side={side}>
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <Sun size={16} className="mr-2" /> Light
         </DropdownMenuItem>

@@ -9,7 +9,7 @@ export default function AppLayout({
 }>) {
   return (
     <AppContextProviders>
-      <div className="w-full min-h-screen flex bg-muted">
+      <div className="w-full min-h-screen flex bg-background gap-2 p-2">
         <Sidebar />
         <div className="flex-1 h-full flex flex-col">
           <Header />
